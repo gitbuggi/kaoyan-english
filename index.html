@@ -1,0 +1,3597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23f97316'/><text x='32' y='46' font-family='sans-serif' font-size='40' font-weight='bold' fill='%23ffffff' text-anchor='middle'>英</text></svg>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研英语标注系统</title>
+<style>
+  :root {
+    --bg: #f7f8fa;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-sub: #64748b;
+    --text-light: #94a3b8;
+    --primary: #1e293b;
+    --primary-hover: #0f172a;
+    --primary-light: #f1f5f9;
+    --success: #059669;
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --danger: #e11d48;
+    --danger-bg: #fff1f2;
+    --danger-border: #fecdd3;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --pink: #000000;
+    --purple: #7c3aed;
+    --cyan: #0284c7;
+    --border: #e2e8f0;
+    --radius: 10px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+    --shadow-md: 0 2px 8px -2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 24px -6px rgba(0,0,0,0.1);
+  /* ===== 配色方案：改这里就行 ===== */
+
+  /* 文章里的高亮 */
+  --loc-bg: #fef9e7;           /* 定位句背景 */
+  --loc-border: #d97706;       /* 定位句下划线 */
+  --loc-text: inherit;         /* 定位句文字色 */
+  --vocab-weight: 500;         /* 生词加粗程度 */
+
+  /* 生词本三列 */
+  --vocab-word: #d97736;          /* 红字 */
+  --vocab-phrase: #d9596d;        /* 绿字 */
+  --vocab-sentence: #fffbeb;      /* 句子黄底 */
+
+  /* 题型 / 方法 / 我的标签 */
+  --tag-type: #7c3aed;         /* 题型 chip */
+  --tag-method: #0284c7;       /* 方法 chip */
+  --tag-mytag: #7c3aed;        /* 我的标签 chip */
+  --tag-opt: #7c3aed;          /* 选项标签 chip */    
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ===== 全局滚动条美化（Webkit 内核：Chrome / Edge / Safari） ===== */
+  ::-webkit-scrollbar {
+    width: 6px;   /* 垂直滚动条宽度 */
+    height: 6px;  /* 水平滚动条高度 */
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent; /* 轨道透明 */
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1; /* 滑块颜色（原有的浅灰蓝） */
+    border-radius: 4px;  /* 圆角 */
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8; /* 鼠标悬停时颜色加深 */
+  }
+
+  /* ===== 全局滚动条美化（Firefox） ===== */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.65;
+    -webkit-font-smoothing: antialiased; font-size: 14px;
+    display: flex; flex-direction: column;
+  }
+  ::selection { background: #dbeafe; }
+
+  header {
+    height: 52px; flex-shrink: 0;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 16px; gap: 12px;
+    z-index: 100; box-shadow: var(--shadow-sm);
+  }
+  .logo {
+    font-size: 15px; font-weight: 700; color: var(--primary);
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  }
+  nav { display: flex; gap: 2px; flex-shrink: 0; }
+  nav button {
+    border: none; background: transparent; padding: 6px 14px; border-radius: 8px;
+    font-size: 13px; color: var(--text-sub); cursor: pointer;
+    font-family: inherit; font-weight: 500; transition: all .15s;
+  }
+  nav button:hover { background: var(--primary-light); color: var(--text); }
+  nav button.active { background: var(--primary); color: #fff; font-weight: 600; }
+  .header-spacer { flex: 1; }
+  .header-title {
+    font-size: 14px; font-weight: 600; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; max-width: 300px;
+  }
+  .header-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; padding: 0;
+    border: 1px solid var(--border); background: var(--card); border-radius: 8px;
+    cursor: pointer; color: var(--text-sub);
+    transition: all .15s; flex-shrink: 0;
+  }
+  .icon-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+  .icon-btn.on { background: var(--primary-light); color: var(--primary); border-color: var(--text-light); }
+  .icon-btn svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-btn.sm { width: 26px; height: 26px; border-radius: 6px; }
+  .icon-btn.sm svg { width: 12px; height: 12px; }
+
+  .status-pill {
+    padding: 5px 12px; font-size: 12px; border-radius: 20px;
+    border: 1px solid var(--border); background: var(--card); cursor: pointer;
+    color: var(--text-sub); font-family: inherit; white-space: nowrap;
+    transition: all .15s;
+  }
+  .status-pill:hover { border-color: var(--primary); color: var(--primary); }
+  .status-pill.connected { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+  .status-pill.saving { color: var(--primary); border-color: var(--text-light); background: var(--primary-light); }
+  .status-pill.error { color: var(--danger); border-color: var(--danger-border); background: var(--danger-bg); }
+  .status-pill.local { color: var(--warning); border-color: #fde68a; background: var(--warning-bg); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    background: var(--primary); color: #fff; border: none;
+    padding: 7px 16px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; font-family: inherit; font-weight: 500;
+    transition: all .15s;
+  }
+  .btn:hover { background: var(--primary-hover); }
+  .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn.ghost:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
+  .btn.sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+
+  .app { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+  .page-scroll { flex: 1; overflow-y: auto; padding: 20px; }
+
+  .annotate-layout { flex: 1; min-height: 0; display: flex; gap: 10px; padding: 10px; overflow: hidden; }
+  .section-nav {
+    width: 110px; flex-shrink: 0; background: var(--card);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 8px 0; overflow-y: auto;
+  }
+  .section-nav .nav-item {
+    padding: 8px 12px; font-size: 12.5px; color: var(--text-sub); cursor: pointer;
+    border-left: 3px solid transparent; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis; transition: all .12s;
+  }
+  .section-nav .nav-item:hover { background: #f8fafc; color: var(--text); }
+  .section-nav .nav-item.active {
+    background: var(--primary-light); color: var(--primary);
+    border-left-color: var(--primary); font-weight: 600;
+  }
+  .article-pane {
+    flex: 1; min-width: 0; overflow-y: auto;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px 28px;
+  }
+  .q-ref {
+    display: inline-block;
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1.5px solid var(--text-sub);
+    padding: 0 12px;
+    margin: 0 3px;
+    text-align: center;
+    line-height: 1.2;
+    min-width: 32px;
+    transition: all .15s;
+    vertical-align: baseline;
+  }
+  .q-ref:hover {
+    color: var(--primary-hover);
+    border-bottom-color: var(--primary);
+    background: var(--primary-light);
+    border-radius: 3px 3px 0 0;
+  }  
+  .article-pane .para { font-size: 15.5px; line-height: 1.95; color: #334155; margin-bottom: 14px; }
+  .article-pane .para:last-child { margin-bottom: 0; }
+  .article-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+
+  /* 定位句：下划线 + 淡黄底 */
+  .loc-mark {
+    border-bottom: 1.5px solid var(--loc-border);
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .loc-mark:hover {  border-bottom-color: #b45309;}
+  .loc-mark.flash { animation: flash 1.2s ease; }
+  @keyframes flash {
+    0%   { background: transparent; }
+    30%  { background: #fde68a; }
+    60%  { background: #fde68a; }
+    100% { background: transparent; }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .5; }
+  }
+  /* 生词 */
+.vocab-mark { font-weight: var(--vocab-weight); }
+.vocab-mark-word {
+  color: var(--vocab-word);
+  font-weight: 600;
+}
+.vocab-mark-word.in-sentence {
+  background: var(--vocab-sentence);
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.vocab-mark-phrase {
+  color: var(--vocab-phrase);
+  font-weight: 600;
+}
+.vocab-mark-phrase.in-sentence {
+  background: var(--vocab-sentence);
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+.vocab-mark-sentence {
+  background: var(--vocab-sentence);
+  padding: 1px 2px;
+  border-radius: 1px;
+}
+  .vocab-mark { cursor: pointer; }
+  .vocab-mark { transition: opacity .25s ease; }
+  .vocab-mark:hover { opacity: 0.85; }
+
+  /* 生词释义卡片 */
+  .vocab-popover {
+    position: fixed;
+    z-index: 1001;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -6px rgba(0,0,0,0.15);
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    min-width: 220px;
+    max-width: 340px;
+  }
+  .vocab-popover .vp-word {
+    font-size: 15px; font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .vocab-popover .vp-list {
+    display: flex; flex-direction: column;
+    gap: 6px; margin-bottom: 8px;
+  }
+  .vocab-popover .vp-item {
+    display: flex; align-items: flex-start;
+    gap: 8px; font-size: 12.5px; line-height: 1.5;
+  }
+  .vocab-popover .vp-item .vp-mean {
+    flex: 1; color: var(--text-sub);
+  }
+  .vocab-popover .vp-item .vp-src {
+    font-size: 10.5px; color: var(--text-light);
+    white-space: nowrap; padding-top: 2px;
+  }
+  .vocab-popover .vp-item .vp-del {
+    cursor: pointer; color: var(--text-light);
+    padding: 0 4px; font-size: 14px; line-height: 1;
+  }
+  .vocab-popover .vp-item .vp-del:hover { color: var(--danger); }
+  .vocab-popover .vp-jump {
+    display: inline-block;
+    padding: 3px 10px; font-size: 11.5px;
+    border-radius: 5px; border: 1px solid var(--border);
+    background: #fff; color: var(--text-sub);
+    cursor: pointer; font-family: inherit;
+  }
+  .vocab-popover .vp-jump:hover { color: var(--primary); border-color: var(--primary); }
+  .questions-pane {
+    width: 460px; flex-shrink: 0; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .q-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; transition: all .15s;
+  }
+  .q-card:hover { border-color: var(--border); box-shadow: var(--shadow-sm); }
+  .q-card.expanded { border-color: var(--text-light); box-shadow: var(--shadow-md); }
+  .q-card.wrong-card { border-left: 3px solid var(--danger); }
+  .q-card.done-card  { border-left: 3px solid var(--success); }
+  .q-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .q-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; padding: 0 2px;
+    color: var(--primary);
+    font-size: 15px; font-weight: 700; flex-shrink: 0;
+  }
+  .q-type-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 10.5px;
+    font-weight: 550; 
+    line-height: 1.7;
+    color: #2F5E8C;
+    background: #EAF0F6;    
+    border: 1px solid ;
+  }
+  .q-stem-text { flex: 1; font-size: 14px; font-weight: 500; padding-top: 1px; line-height: 1.5; }
+  .q-stem-text.empty { color: var(--text-light); font-style: italic; font-weight: 400; }
+
+  .options-wrap { margin-bottom: 8px; }
+  .opt-row { display: flex; align-items: flex-start; gap: 10px; padding: 5px 0; }
+  .opt-key {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 6px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text-sub); font-weight: 700; font-size: 12px;
+    cursor: pointer; user-select: none; flex-shrink: 0; transition: all .12s;
+  }
+  .opt-key:hover { border-color: var(--primary); color: var(--primary); }
+  .opt-key.picked { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .opt-key.correct { background: var(--success); color: #fff; border-color: var(--success); }
+  .opt-key.wrong { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .opt-text { flex: 1; font-size: 13.5px; color: #334155; line-height: 1.55; padding-top: 2px; }
+
+  .opt-tag-btn {
+    opacity: 0; width: 22px; height: 22px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid transparent; background: transparent;
+    border-radius: 5px; cursor: pointer; color: var(--text-light);
+    transition: all .12s; flex-shrink: 0;
+  }
+  .opt-row:hover .opt-tag-btn { opacity: 1; }
+  .opt-tag-btn:hover { color: var(--primary); border-color: var(--border); }
+  .opt-tag-btn.on { opacity: 1; color: var(--primary); border-color: var(--text-light); background: var(--primary-light); }
+  .opt-tag-btn svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+  .opt-tags-inline { margin-left: 34px; margin-bottom: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .opt-tags-inline:empty { display: none; }
+  .ot-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 6px 2px 10px; font-size: 11px;
+    background: var(--tag-mytag); color: #fff; border-radius: 12px;
+  }
+  .ot-chip .rm {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; border-radius: 50%;
+    cursor: pointer; background: rgba(255,255,255,0.25); font-size: 10px;
+  }
+  .ot-chip .rm:hover { background: rgba(255,255,255,0.45); }
+
+  .opt-tag-wrap { margin: 2px 0 6px 34px; }
+  .opt-tag-wrap input {
+    width: 100%; padding: 5px 10px; font-size: 12.5px;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; outline: none; background: #f8fafc;
+  }
+  .opt-tag-wrap input:focus { border-color: var(--primary); background: #fff; }
+
+  .q-toggle-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); gap: 8px;
+  }
+  .q-indicators { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .ind { font-size: 11.5px; color: var(--text-light); }
+  .ind .ind-num { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ind.on { color: var(--primary); }
+  .ind.wrong.on { color: var(--danger); }
+  .ind.done.on { color: var(--success); }
+  .q-toggle-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+  .tag-input-wrap {
+    margin-top: 10px; padding: 10px 12px;
+    background: #f8fafc; border: 1px solid var(--border); border-radius: 8px;
+  }
+  .tag-input-wrap .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+  .tag-input-wrap .chips:empty { display: none; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 6px 3px 11px; font-size: 12px;
+    background: var(--purple); color: #fff; border-radius: 12px;
+  }
+  .chip .rm {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 15px; height: 15px; border-radius: 50%;
+    cursor: pointer; background: rgba(255,255,255,0.25); font-size: 10px;
+  }
+  .chip .rm:hover { background: rgba(255,255,255,0.45); }
+  .tag-input-wrap input {
+    width: 100%; padding: 6px 10px; font-size: 12.5px;
+    border: 1px solid var(--border); border-radius: 6px;
+    font-family: inherit; outline: none; background: #fff;
+  }
+  .tag-input-wrap input:focus { border-color: var(--primary); }
+
+  .loc-panel {
+    margin-top: 10px; padding: 10px 12px;
+    background: #fffbeb; border-left: 3px solid #d97706; border-radius: 0 8px 8px 0;
+  }
+  .loc-panel .loc-title {
+    font-size: 11.5px; color: #854d0e; font-weight: 600;
+    margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .loc-item {
+    display: flex; align-items: flex-start; gap: 6px;
+    padding: 4px 0; font-size: 12.5px; color: #713f12;
+  }
+  .loc-item .loc-text { flex: 1; cursor: pointer; }
+  .loc-item .loc-text:hover { text-decoration: underline; }
+  .loc-item .loc-para { font-size: 10.5px; color: #a16207; flex-shrink: 0; padding-top: 2px; }
+  .loc-item .loc-del {
+    cursor: pointer; color: #a16207; padding: 0 4px; flex-shrink: 0;
+    display: inline-flex; align-items: center;
+  }
+  .loc-item .loc-del:hover { color: var(--danger); }
+  .loc-empty { font-size: 12px; color: #a16207; font-style: italic; }
+
+  .tag-area { margin-top: 10px; }
+  .tag-section { margin-bottom: 8px; }
+  .tag-section-title {
+    font-size: 10.5px; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 4px; font-weight: 600;
+  }
+  .tag-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .tag-chip {
+    padding: 3px 10px; font-size: 11.5px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text-sub); cursor: pointer; font-family: inherit;
+    transition: all .12s;
+  }
+  .tag-chip:hover { border-color: var(--primary); color: var(--primary); }
+  .tag-chip.type.on { background: var(--tag-type); color: #fff; border-color: var(--tag-type); }
+  .tag-chip.method.on { background: var(--tag-method); color: #fff; border-color: var(--tag-method); }
+
+  .dash-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+  .dash-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 20px; border-left: 3px solid var(--primary);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .dash-box:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .dash-box.wrong { border-left-color: var(--danger); }
+  .dash-box.vocab { border-left-color: var(--pink); }
+  .dash-box.done { border-left-color: var(--success); }
+  .dash-box .num { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1.1; letter-spacing: -0.5px; }
+  .dash-box.wrong .num { color: var(--danger); }
+  .dash-box.vocab .num { color: var(--pink); }
+  .dash-box.done .num { color: var(--success); }
+  .dash-box .num .suffix { font-size: 14px; color: var(--text-light); font-weight: 400; }
+  .dash-box .label { font-size: 11.5px; color: var(--text-sub); margin-top: 6px; letter-spacing: 0.3px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+
+  .year-chart { display: flex; align-items: flex-end; gap: 8px; padding: 16px 4px 8px; overflow-x: auto; }
+  .year-col {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    flex: 1; min-width: 48px; cursor: pointer; padding: 6px 0; border-radius: 8px;
+    transition: background .12s;
+  }
+  .year-col:hover { background: #f8fafc; }
+  .year-num { font-size: 13px; font-weight: 700; color: var(--danger); font-variant-numeric: tabular-nums; }
+  .year-num.zero { color: #cbd5e1; font-weight: 500; }
+  .year-bar-wrap { height: 90px; width: 100%; display: flex; align-items: flex-end; padding: 0 10px; }
+  .year-bar { width: 100%; border-radius: 3px 3px 0 0; background: #fda4af; min-height: 3px; transition: height .3s; }
+  .year-bar.zero { background: #f1f5f9; }
+  .year-label { font-size: 12px; color: var(--text); font-weight: 500; }
+  .year-total { font-size: 10px; color: var(--text-light); }
+
+  /* ===== 生词本 ===== */
+  .vocab-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  /* 移除外层的高度限制，防止出现双重滚动条 */
+  .vocab-list { 
+    max-height: none; 
+    overflow-y: visible; 
+  }
+  .vocab-columns {
+    display: flex;
+    gap: 20px;
+    height: 450px;
+    align-items: stretch;
+  }
+
+  .vocab-col { min-width: 0; display: flex; flex-direction: column; flex: 1; }
+  .vocab-col.col-word { flex: 1; }
+  .vocab-col.col-phrase { flex: 1.5; }
+  .vocab-col.col-sentence { flex: 2; }
+
+  .vocab-col-title {
+    font-size: 12px;
+    color: var(--text-sub);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .vocab-col-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 2px;
+  }
+  .vocab-col-content::-webkit-scrollbar { width: 4px; }
+  .vocab-col-content::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  .vocab-col-content::-webkit-scrollbar-track { background: transparent; }
+
+  /* 卡片：无边框、无圆角、无背景，仅保留极小的垂直间距和一条淡色分隔线 */
+  .vocab-col-item {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 4px;
+    margin-bottom: 4px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid #f1f5f9;
+    flex-shrink: 0;
+  }
+  .vocab-col-content > .vocab-col-item:last-child { border-bottom: none; }
+
+  .vocab-col-item .word {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--pink);
+    line-height: 1.4;
+    word-break: break-word;
+  }
+  .vocab-col-item .meaning {
+    font-size: 12.5px;
+    color: var(--text-sub);
+    line-height: 1.4;
+    cursor: pointer;
+    word-break: break-word;
+  }
+  .vocab-col-item .item-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .vocab-col-item .source {
+    font-size: 10.5px;
+    color: var(--text-light);
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .vocab-col-item .del {
+    font-size: 13px;
+    line-height: 1;
+    color: var(--text-light);
+    border: none;
+    background: transparent;
+    padding: 0 2px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity .12s, color .12s;
+    flex-shrink: 0;
+  }
+  .vocab-col-item:hover .del { opacity: 1; }
+  .vocab-col-item .del:hover { color: var(--danger); }
+
+  /* 单词 / 短语：英文 + 翻译 + 来源，同一行，来源右对齐 */
+  .vocab-col-item.word-item {
+    flex-direction: row;
+    align-items: baseline;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .vocab-col-item.word-item .word {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+  .vocab-col-item.word-item .meaning {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .vocab-col-item.word-item .item-right { flex: 0 0 auto; }
+
+  /* 句子：英文独占一行；翻译 + 来源在下一行，来源右对齐 */
+  .vocab-col-item.sentence-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .vocab-col-item.sentence-item .word {
+    width: 100%;
+    white-space: normal;
+    word-break: break-word;
+  }
+  .vocab-col-item.sentence-item .bottom-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    width: 100%;
+  }
+  .vocab-col-item.sentence-item .bottom-row .meaning {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: normal;
+  }
+  .vocab-col-item.sentence-item .bottom-row .item-right { flex: 0 0 auto; }
+
+  /* 双击编辑释义时的输入框 */
+  .vocab-col-item .meaning-input {
+    flex: 1;
+    padding: 1px 4px;
+    font-size: 12.5px;
+    border: 1px solid var(--primary);
+    border-radius: 3px;
+    font-family: inherit;
+    outline: none;
+  }
+  .paper-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 10px; cursor: pointer; background: var(--card);
+    transition: all .15s;
+  }
+  .paper-item:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .paper-item .meta { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
+  .paper-item .arrow { color: var(--text-sub); font-size: 18px; }
+
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .filter-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .filter-group label { font-size: 12px; color: var(--text-sub); font-weight: 600; }
+
+  .stat-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row .name { flex: 0 0 130px; font-weight: 500; }
+  .stat-bar-wrap { flex: 1; background: #f1f5f9; border-radius: 4px; height: 10px; overflow: hidden; }
+  .stat-bar { height: 100%; border-radius: 4px; transition: width .3s; }
+  .stat-bar.type { background: var(--purple); }
+  .stat-bar.method { background: var(--cyan); }
+  .stat-bar.mytag { background: var(--warning); }
+  .stat-row .num { flex: 0 0 44px; text-align: right; color: var(--text-sub); font-variant-numeric: tabular-nums; }
+
+  .float-bar {
+    position: absolute; z-index: 999;
+    display: flex; gap: 4px;
+    background: var(--card); padding: 5px; border-radius: 10px;
+    box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+  }
+  .float-bar button {
+    width: 32px; height: 32px; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 7px; border: none; cursor: pointer; font-family: inherit;
+    transition: filter .12s;
+  }
+  .float-bar button:hover { filter: brightness(0.95); }
+  .float-bar button svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; }
+  .float-bar .fb-loc { background: #fef3c7; color: #92400e; }
+  .float-bar .fb-loc:hover { background: #fde68a; }
+  .float-bar .fb-vocab { background: #fce7f3; color: #9d174d; }
+  .float-bar .fb-vocab:hover { background: #fbcfe8; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: #1e293b; color: #fff; padding: 10px 20px;
+    border-radius: 8px; font-size: 13px; z-index: 1000;
+    transition: transform .25s ease; box-shadow: var(--shadow-lg);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--danger); }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    z-index: 200; display: flex; align-items: center; justify-content: center;
+  }
+  .modal {
+    background: var(--card); border-radius: 14px; padding: 24px;
+    width: 90%; max-width: 420px; box-shadow: var(--shadow-lg);
+  }
+  .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+  .modal .modal-body { margin-bottom: 18px; }
+  .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .modal label.fl { display: block; font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+  .modal .field { margin-bottom: 10px; }
+  .modal .field input[type=text], .modal .field input[type=password] {
+    width: 100%; padding: 8px 12px; font-size: 13.5px; font-family: inherit;
+    border: 1px solid var(--border); border-radius: 8px; outline: none; box-sizing: border-box;
+  }
+  .modal .field input:focus { border-color: var(--primary); }
+  .modal .row { display: flex; gap: 8px; }
+  .modal .row > div { flex: 1; min-width: 0; }
+  .modal .hint { font-size: 11.5px; color: var(--text-light); line-height: 1.5; margin-top: 4px; }
+  .modal .remember { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-sub); }
+  /* ===== Search Page ===== */
+  .search-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .search-input {
+    flex: 1;
+    padding: 10px 16px;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: inherit;
+    outline: none;
+    background: var(--card);
+    transition: border-color .15s;
+  }
+  .search-input:focus { border-color: var(--primary); }
+  .search-stat {
+    font-size: 12px; color: var(--text-sub); white-space: nowrap;
+  }
+  .search-result {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: var(--card);
+    cursor: pointer;
+    transition: all .12s;
+  }
+  .search-result:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
+  .search-result .sr-main { flex: 1; min-width: 0; }
+  .search-result .sr-word {
+    font-size: 14px; font-weight: 700; line-height: 1.4;
+    word-break: break-word;
+  }
+  .search-result .sr-word.word { color: var(--vocab-word); }
+  .search-result .sr-word.phrase { color: var(--vocab-phrase); }
+  .search-result .sr-word.sentence { color: var(--vocab-sentence); }
+  .search-result .sr-meaning {
+    font-size: 12.5px; color: var(--text-sub); margin-top: 3px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .search-result .sr-source {
+    font-size: 11.5px; color: var(--text-light); white-space: nowrap;
+    padding-top: 3px; flex-shrink: 0;
+  }
+  .search-tabs {
+    display: flex; gap: 4px; margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-tab {
+    padding: 8px 18px; font-size: 13px; font-family: inherit;
+    background: transparent; border: none; border-bottom: 2px solid transparent;
+    color: var(--text-sub); cursor: pointer; font-weight: 500;
+    margin-bottom: -1px;
+  }
+  .search-tab:hover { color: var(--text); }
+  .search-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+  .search-result .sr-context {
+    font-size: 13px; color: #334155; line-height: 1.6;
+    margin-top: 4px; word-break: break-word;
+  }
+  .search-result .sr-context em {
+    font-style: normal; background: #fde68a; padding: 1px 2px; border-radius: 2px;
+  }
+  .search-result .sr-title {
+    font-size: 11.5px; color: var(--text-light); margin-top: 4px;
+  }
+  .search-hit {
+    background: #fde68a;
+    border-bottom: 2px solid #d97706;
+    padding: 1px 0;
+    scroll-margin-top: 100px;
+  }  
+  .empty { text-align: center; padding: 40px 20px; color: var(--text-light); font-size: 13px; }
+
+  @media (max-width: 1000px) {
+    .annotate-layout { flex-direction: column; overflow-y: auto; }
+    .section-nav { width: 100%; display: flex; overflow-x: auto; padding: 0; }
+    .section-nav .nav-item {
+      flex-shrink: 0; border-left: none;
+      border-bottom: 3px solid transparent; padding: 10px 14px;
+    }
+    .section-nav .nav-item.active { border-left: none; border-bottom-color: var(--primary); }
+    .article-pane, .questions-pane { width: 100%; max-height: none; flex: none; }
+    .questions-pane { width: 100%; }
+  }
+  /* 编辑单词/短语时的输入框 */
+  .vocab-col-item .word-input {
+    flex: 1;
+    min-width: 0;
+    padding: 1px 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pink);
+    border: 1px solid var(--primary);
+    border-radius: 3px;
+    font-family: inherit;
+    outline: none;
+    background: #fff;
+    box-sizing: border-box;
+  }
+  .vocab-col-item.word-item .word-input {
+    width: 100%;
+    flex: 1;
+  }
+  /* ===== 隐藏翻译功能 ===== */
+  .vocab-col-content.hide-trans .meaning {
+    color: transparent !important;
+    background: #e2e8f0; /* 灰色遮罩 */
+    border-radius: 4px;
+    padding: 0 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: all .15s;
+  }
+  
+  /* 鼠标悬停时显示，方便临时看一眼 */
+  .vocab-col-content.hide-trans .meaning:hover {
+    color: var(--text-sub) !important;
+    background: transparent;
+  }
+
+  /* 双击编辑时，输入框必须是正常的，不能是透明的 */
+  .vocab-col-content.hide-trans .meaning-input {
+    background: #fff;
+  }  
+</style>
+</head>
+<body>
+<header>
+  <button class="icon-btn" id="btn-back" style="display:none;" data-action="go-back" title="返回仪表盘">
+    <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+  </button>
+  <div class="logo">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+    <span>考研标注</span>
+  </div>
+  <span class="header-title" id="header-title"></span>
+  <nav id="nav"></nav>
+  <div class="header-spacer"></div>
+  <div class="header-actions">
+    <button class="icon-btn" id="btn-hide-trans" data-action="toggle-hide-trans" title="隐藏/显示生词翻译"></button>
+    <button class="status-pill" id="fs-status" data-action="pick-file" title="连接数据文件">连接文件</button>
+    <button class="icon-btn" data-action="export-data" title="导出备份">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </button>
+    <button class="icon-btn" data-action="import-data" title="导入备份">
+      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </button>
+  </div>
+</header>
+<div class="app" id="app"></div>
+
+<datalist id="allCustomTags"></datalist>
+<input type="file" id="import-file-input" accept=".json" style="display:none;">
+
+<script src="data.js"></script>
+<script src="dict.js"></script>
+<script src="annotations.js"></script>
+<script>
+'use strict';
+
+window.EXAM_DATA = window.EXAM_DATA || { papers: [] };
+
+const ICONS = {
+  eye: '<svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff: '<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>',
+  tag: '<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
+  edit: '<svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
+  target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  bookmark: '<svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+};
+
+const DEFAULT_TAG_DEFS = {
+  types: ['细节题', '推断题', '主旨题', '词义猜测', '态度题', '例证题', '指代题'],
+  methods: ['定位法', '同义替换', '排除法', '反推法', '主旨归纳', '上下文推断']
+};
+
+window.ANNOTATIONS = window.ANNOTATIONS || {};
+if (!window.ANNOTATIONS.tagDefs) window.ANNOTATIONS.tagDefs = DEFAULT_TAG_DEFS;
+if (!window.ANNOTATIONS.questions) window.ANNOTATIONS.questions = {};
+if (!window.ANNOTATIONS.vocab) window.ANNOTATIONS.vocab = [];
+if (!window.ANNOTATIONS.customTags) window.ANNOTATIONS.customTags = [];
+
+const state = {
+  page: 'dashboard',
+  paperId: null,
+  sectionId: null,
+  passageIndex: 0,
+  expanded: {},
+  showAnswer: {},
+  showSectionAnswer: {},   // 按 section 记录是否显示全部答案  
+  optTagOpen: {},
+  tagPanel: {},
+  filterTypes: [],
+  filterMethods: [],
+  filterMyTags: [],
+  filterStatus: 'all',
+  selectedText: '',
+  selectedPara: 0,
+  vocabShowAll: false,
+  inputDrafts: {},   // 输入框草稿 { draftKey: value } 
+  searchMode: 'vocab',         // 'vocab' | 'article'
+  searchQuery: '',
+  searchHighlight: null,        // 跳转后临时高亮 { text, paperId, sectionId, passageIndex }
+  hideTranslation: false,
+};
+
+function esc(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+function classifyVocab(text) {
+  const t = String(text || '').trim();
+  if (!t) return 'word';
+  // 含句末标点 → 句子
+  if (/[.?!。？！]/.test(t)) return 'sentence';
+  // 按词数判断
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length >= 8) return 'sentence';   // 8 个词以上也算句子
+  if (words.length >= 2) return 'phrase';
+  return 'word';
+}
+function showToast(msg, type = '') {
+  let t = document.querySelector('.toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.className = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function saveDraft(key, val) {
+  if (val) state.inputDrafts[key] = val;
+  else delete state.inputDrafts[key];
+}
+function getDraft(key) {
+  return state.inputDrafts[key] || '';
+}
+
+function getCurrentPaper() {
+  return (window.EXAM_DATA.papers || []).find(p => p.id === state.paperId);
+}
+function getCurrentSection() {
+  const paper = getCurrentPaper();
+  if (!paper) return null;
+  return (paper.sections || []).find(s => s.id === state.sectionId);
+}
+function annKey(paper, qid) { return paper.year + '-' + qid; }
+
+function getAnn(paper, qid) {
+  const key = annKey(paper, qid);
+  if (!window.ANNOTATIONS.questions[key]) {
+    window.ANNOTATIONS.questions[key] = {
+      types: [], methods: [], wrong: false, userAnswer: '',
+      locations: [], options: {}, myTags: [], note: ''
+    };
+  }
+  const a = window.ANNOTATIONS.questions[key];
+  if (!a.types) a.types = [];
+  if (!a.methods) a.methods = [];
+  if (!a.locations) a.locations = [];
+  if (!a.options) a.options = {};
+  if (!a.myTags) a.myTags = [];
+  if (!a.userAnswer) a.userAnswer = '';
+  return a;
+}
+
+function getOptTags(ann, optKey) {
+  if (!ann.options[optKey]) ann.options[optKey] = {};
+  if (!ann.options[optKey].tags) ann.options[optKey].tags = [];
+  return ann.options[optKey].tags;
+}
+
+function getAllQuestionsInSection(section) {
+  if (!section) return [];
+  let qs = [];
+  if (section.passages && section.passages.length) {
+    const p = section.passages[state.passageIndex];
+    if (p) qs = qs.concat(p.questions || []);
+  } else {
+    qs = qs.concat(section.questions || []);
+  }
+  return qs;
+}
+
+function countAllQuestions(paper) {
+  let n = 0;
+  (paper.sections || []).forEach(s => {
+    n += (s.questions || []).length;
+    (s.passages || []).forEach(p => { n += (p.questions || []).length; });
+  });
+  return n;
+}
+
+function buildSidebarItems(paper) {
+  const items = [];
+  const find = id => (paper.sections || []).find(s => s.id === id);
+  const readingA = find('reading-a'), cloze = find('cloze'),
+        readingB = find('reading-b'), translation = find('translation'),
+        writing = find('writing');
+  if (readingA && readingA.passages && readingA.passages.length) {
+    readingA.passages.forEach((p, i) => {
+      items.push({ secId: 'reading-a', passageIndex: i, label: p.title || ('Text ' + (i + 1)) });
+    });
+  } else if (readingA) {
+    items.push({ secId: 'reading-a', passageIndex: 0, label: '阅读理解' });
+  }
+  if (cloze) items.push({ secId: 'cloze', label: '完形填空' });
+  if (readingB) items.push({ secId: 'reading-b', label: '新题型' });
+  if (translation) items.push({ secId: 'translation', label: '翻译' });
+  if (writing) items.push({ secId: 'writing', label: '写作' });
+  return items;
+}
+
+function updateDatalist() {
+  const dl = document.getElementById('allCustomTags');
+  if (!dl) return;
+  const tags = window.ANNOTATIONS.customTags || [];
+  dl.innerHTML = tags.map(t => `<option value="${esc(t)}"></option>`).join('');
+}
+
+/* ===== 标注存储层：GitHub 仓库 / 本地文件 / 浏览器缓存 ===== */
+const HANDLE_DB = 'kaoyan-fs', HANDLE_STORE = 'handles', HANDLE_KEY = 'annotationsFile';
+const GH_CFG_KEY = 'kaoyan-gh-config', LOCAL_CACHE_KEY = 'kaoyan-annotations-cache';
+let fileHandle = null, pendingHandle = null, saveTimer = null, saveStatus = 'disconnected';
+let warnedNoFile = false;
+let ghCfg = null, ghSha = null, ghBusy = false, ghQueued = false, ghLastPushed = null;
+let saveBackend = 'none';   // 'gh' | 'fs' | 'none'
+
+function openHandleDB() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(HANDLE_DB, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(HANDLE_STORE);
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function saveHandle(h) {
+  const db = await openHandleDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(HANDLE_STORE, 'readwrite');
+    tx.objectStore(HANDLE_STORE).put(h, HANDLE_KEY);
+    tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+  });
+}
+async function loadHandle() {
+  try {
+    const db = await openHandleDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(HANDLE_STORE, 'readonly');
+      const r = tx.objectStore(HANDLE_STORE).get(HANDLE_KEY);
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  } catch (e) { return null; }
+}
+
+async function pickFile() {
+  if (!window.showOpenFilePicker) {
+    showToast('请用 Chrome 或 Edge', 'error');
+    return;
+  }
+
+  // 1) 有 pending 句柄（上次未授权）→ 只请求权限，不弹选择器
+  if (pendingHandle) {
+    try {
+      const perm = await pendingHandle.requestPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        const h = pendingHandle;
+        pendingHandle = null;
+        await saveHandle(h);
+        await attachHandle(h, false);
+        showToast('已恢复连接', 'success');
+        return;
+      }
+    } catch (e) {
+      console.warn('pending 句柄失效', e);
+      pendingHandle = null;
+    }
+  }
+
+  // 2) 有旧句柄 → 请求权限
+  if (fileHandle) {
+    try {
+      const perm = await fileHandle.requestPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        await attachHandle(fileHandle, false);
+        showToast('已恢复连接', 'success');
+        return;
+      }
+    } catch (e) {
+      console.warn('旧句柄失效', e);
+      fileHandle = null;
+    }
+  }
+
+  // 3) 没有句柄 → 才弹选择器
+  try {
+    const [handle] = await window.showOpenFilePicker({
+      types: [{ description: '标注文件', accept: { 'text/javascript': ['.js'] } }],
+      multiple: false
+    });
+    await saveHandle(handle);
+    await attachHandle(handle, true);
+  } catch (e) {}
+}
+
+async function attachHandle(handle, request) {
+  fileHandle = handle;
+  const opts = { mode: 'readwrite' };
+  let perm = await handle.queryPermission(opts);
+  if (perm !== 'granted' && request) perm = await handle.requestPermission(opts);
+  if (perm !== 'granted') { setSaveStatus('disconnected'); return; }
+  await readFromHandle();
+  saveBackend = 'fs';
+  markDirty(false);
+  setSaveStatus('connected');
+  render();
+  showToast('已连接标注文件', 'success');
+}
+
+async function readFromHandle() {
+  if (!fileHandle) return;
+  try {
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+    const obj = parseAnnotationsText(text);
+    if (obj) { applyAnnotationsObject(obj); cacheLocal(); }
+  } catch (e) { console.error('读取失败', e); showToast('读取文件失败', 'error'); }
+}
+
+function scheduleSave() {
+  cacheLocal();
+  markDirty(true);
+
+  if (saveBackend === 'gh') {
+    if (saveTimer) clearTimeout(saveTimer);
+    setSaveStatus('saving');
+    saveTimer = setTimeout(ghSaveNow, 2000);
+    return;
+  }
+
+  if (saveBackend === 'fs' && fileHandle) {
+    if (saveTimer) clearTimeout(saveTimer);
+    setSaveStatus('saving');
+    saveTimer = setTimeout(writeToHandle, 400);
+    return;
+  }
+
+  setSaveStatus('local');
+  if (!warnedNoFile) {
+    showToast('未连接数据文件，改动暂存在本机浏览器', 'error');
+    warnedNoFile = true;
+    setTimeout(() => { warnedNoFile = false; }, 8000);
+  }
+}
+
+async function writeToHandle() {
+  if (!fileHandle) return;
+  try {
+    const w = await fileHandle.createWritable();
+    await w.write(annotationsSource());
+    await w.close();
+    cacheLocal();
+    markDirty(false);
+    setSaveStatus('connected');
+  } catch (e) { console.error(e); setSaveStatus('error'); showToast('保存失败', 'error'); }
+}
+
+/* ===== 序列化 / 解析 / 本机缓存 ===== */
+function annotationsSource() {
+  return '// 考研英语标注文件 - 自动维护\n\nwindow.ANNOTATIONS = ' +
+    JSON.stringify(window.ANNOTATIONS, null, 2) + ';\n';
+}
+
+function parseAnnotationsText(text) {
+  const idx = text.indexOf('window.ANNOTATIONS');
+  if (idx === -1) return null;
+  const eq = text.indexOf('=', idx);
+  if (eq === -1) return null;
+  const rest = text.slice(eq + 1).trim().replace(/;+\s*$/, '');
+  try { return JSON.parse(rest); } catch (e) { console.error('标注解析失败', e); return null; }
+}
+
+function applyAnnotationsObject(obj) {
+  if (!obj || typeof obj !== 'object') return false;
+  window.ANNOTATIONS = {
+    tagDefs: obj.tagDefs || DEFAULT_TAG_DEFS,
+    questions: obj.questions || {},
+    vocab: obj.vocab || [],
+    customTags: obj.customTags || []
+  };
+  updateDatalist();
+  return true;
+}
+
+function cacheLocal() {
+  try { localStorage.setItem(LOCAL_CACHE_KEY, JSON.stringify(window.ANNOTATIONS)); } catch (e) {}
+}
+function markDirty(v) {
+  try {
+    if (v) localStorage.setItem(LOCAL_CACHE_KEY + '-dirty', '1');
+    else localStorage.removeItem(LOCAL_CACHE_KEY + '-dirty');
+  } catch (e) {}
+}
+function readLocalCache() {
+  try {
+    const raw = localStorage.getItem(LOCAL_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+/* ===== GitHub 仓库后端（手机 / 平板可用） ===== */
+function ghHeaders() {
+  return {
+    'Authorization': 'Bearer ' + ghCfg.token,
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json'
+  };
+}
+function ghFileUrl() {
+  return 'https://api.github.com/repos/' + ghCfg.owner + '/' + ghCfg.repo +
+         '/contents/' + ghCfg.path.split('/').map(encodeURIComponent).join('/');
+}
+async function ghErrorText(res) {
+  try {
+    const j = await res.json();
+    if (j && j.message) return j.message;
+  } catch (e) {}
+  return 'HTTP ' + res.status;
+}
+function b64ToUtf8(b64) {
+  const bin = atob(String(b64).replace(/\s+/g, ''));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+function utf8ToB64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
+async function ghLoad() {
+  const url = ghFileUrl() + '?ref=' + encodeURIComponent(ghCfg.branch) + '&_=' + Date.now();
+  const res = await fetch(url, { headers: ghHeaders(), cache: 'no-store' });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(await ghErrorText(res));
+  const j = await res.json();
+  return { sha: j.sha, text: j.content ? b64ToUtf8(j.content) : '' };
+}
+
+async function ghCreate(text) {
+  const res = await fetch(ghFileUrl(), {
+    method: 'PUT',
+    headers: ghHeaders(),
+    body: JSON.stringify({
+      message: '创建 annotations.js',
+      content: utf8ToB64(text),
+      branch: ghCfg.branch
+    })
+  });
+  if (!res.ok) throw new Error(await ghErrorText(res));
+  const j = await res.json();
+  return j && j.content ? j.content.sha : null;
+}
+
+async function ghPut(text) {
+  const payload = {
+    message: '更新标注 ' + new Date().toLocaleString('zh-CN', { hour12: false }),
+    content: utf8ToB64(text),
+    branch: ghCfg.branch
+  };
+  if (ghSha) payload.sha = ghSha;
+  let res = await fetch(ghFileUrl(), { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(payload) });
+  if (res.status === 409 || res.status === 422) {
+    // sha 变了（别的设备改过）→ 重新取一次再写
+    const cur = await ghLoad();
+    ghSha = cur ? cur.sha : null;
+    if (ghSha) payload.sha = ghSha; else delete payload.sha;
+    res = await fetch(ghFileUrl(), { method: 'PUT', headers: ghHeaders(), body: JSON.stringify(payload) });
+  }
+  if (!res.ok) throw new Error(await ghErrorText(res));
+  const j = await res.json();
+  return j && j.content ? j.content.sha : null;
+}
+
+async function ghSaveNow() {
+  if (!ghCfg || saveBackend !== 'gh') return;
+  if (ghBusy) { ghQueued = true; return; }
+  const text = annotationsSource();
+  if (text === ghLastPushed) { setSaveStatus('connected'); markDirty(false); return; }
+  ghBusy = true;
+  setSaveStatus('saving');
+  try {
+    const sha = await ghPut(text);
+    if (sha) ghSha = sha;
+    ghLastPushed = text;
+    cacheLocal();
+    markDirty(false);
+    setSaveStatus('connected');
+  } catch (e) {
+    console.error('GitHub 保存失败', e);
+    setSaveStatus('error');
+    showToast('云端保存失败：' + e.message, 'error');
+  } finally {
+    ghBusy = false;
+    if (ghQueued) { ghQueued = false; setTimeout(ghSaveNow, 400); }
+  }
+}
+
+async function connectGitHub(cfg, opts) {
+  opts = opts || {};
+  ghCfg = cfg;
+  saveBackend = 'gh';
+  if (opts.remember !== false) {
+    try { localStorage.setItem(GH_CFG_KEY, JSON.stringify(cfg)); } catch (e) {}
+  } else {
+    try { localStorage.removeItem(GH_CFG_KEY); } catch (e) {}
+  }
+  setSaveStatus('saving');
+  let ok = true;
+  try {
+    const file = await ghLoad();
+    let dirty = false;
+    try { dirty = localStorage.getItem(LOCAL_CACHE_KEY + '-dirty') === '1'; } catch (e) {}
+    if (file && dirty && !opts.silent) {
+      const pushLocal = confirm('本机有尚未写入文件的改动。\n\n确定 = 用本机版本覆盖云端\n取消 = 放弃本机改动，改用云端版本');
+      if (pushLocal) {
+        ghSha = file.sha;
+        const sha = await ghPut(annotationsSource());
+        if (sha) ghSha = sha;
+        ghLastPushed = annotationsSource();
+      } else {
+        ghSha = file.sha;
+        const obj = parseAnnotationsText(file.text);
+        if (obj) { applyAnnotationsObject(obj); cacheLocal(); }
+        ghLastPushed = annotationsSource();
+      }
+    } else if (file) {
+      ghSha = file.sha;
+      const obj = parseAnnotationsText(file.text);
+      if (obj) { applyAnnotationsObject(obj); cacheLocal(); }
+      ghLastPushed = annotationsSource();
+    } else {
+      ghSha = await ghCreate(annotationsSource());
+      ghLastPushed = annotationsSource();
+    }
+    markDirty(false);
+    setSaveStatus('connected');
+    render();
+    if (!opts.silent) showToast('已连接 GitHub，改动会自动保存', 'success');
+  } catch (e) {
+    ok = false;
+    console.error('GitHub 连接失败', e);
+    if (!opts.silent) {
+      // 手动连接失败：退回本机模式，避免后续保存一直报错
+      saveBackend = 'none';
+      ghCfg = null;
+      ghSha = null;
+      setSaveStatus('local');
+    } else {
+      setSaveStatus('error');
+    }
+    if (!opts.silent) showToast('连接失败：' + e.message, 'error');
+  }
+  return ok;
+}
+
+function readStoredGhCfg() {
+  try {
+    const raw = localStorage.getItem(GH_CFG_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+
+function disconnectGitHub() {
+  try { localStorage.removeItem(GH_CFG_KEY); } catch (e) {}
+  ghCfg = null; ghSha = null; ghBusy = false; ghQueued = false; ghLastPushed = null;
+  saveBackend = 'none';
+  setSaveStatus('disconnected');
+  showToast('已断开 GitHub 连接', 'success');
+}
+
+function guessRepoFromLocation() {
+  const host = location.hostname || '';
+  const seg = (location.pathname || '').split('/').filter(Boolean);
+  if (/\.github\.io$/i.test(host) && seg.length) {
+    return { owner: host.split('.')[0], repo: seg[0] };
+  }
+  return { owner: '', repo: '' };
+}
+
+function openStoreModal() {
+  const saved = readStoredGhCfg() || {};
+  const guess = guessRepoFromLocation();
+  const ownerRepo = (saved.owner && saved.repo)
+    ? (saved.owner + '/' + saved.repo)
+    : (guess.owner ? (guess.owner + '/' + guess.repo) : '');
+  const canFS = !!window.showOpenFilePicker;
+  const hasConn = !!(saved.owner && saved.repo);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>连接数据文件</h3>
+      <div class="modal-body">
+        <div class="hint" style="margin-bottom:12px;">
+          改动会直接写入仓库里的 <b>annotations.js</b>，手机、平板、电脑共用同一份数据。
+        </div>
+        <div class="field">
+          <label class="fl">仓库</label>
+          <input type="text" id="gh-repo" value="${esc(ownerRepo)}" placeholder="用户名/仓库名" autocomplete="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="fl">分支</label>
+            <input type="text" id="gh-branch" value="${esc(saved.branch || 'main')}" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <div class="field">
+            <label class="fl">文件路径</label>
+            <input type="text" id="gh-path" value="${esc(saved.path || 'annotations.js')}" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+        </div>
+        <div class="field">
+          <label class="fl">访问令牌</label>
+          <input type="password" id="gh-token" value="${saved.token ? esc(saved.token) : ''}" placeholder="github_pat_… / ghp_…" autocomplete="off" spellcheck="false">
+          <div class="hint">细粒度 Token 只勾选本仓库的 <b>Contents → Read and write</b>；classic Token 勾 <b>repo</b> 也可。</div>
+        </div>
+        <label class="remember"><input type="checkbox" id="gh-remember" checked> 在本机记住 Token</label>
+      </div>
+      <div class="modal-actions">
+        ${hasConn ? '<button class="btn ghost" data-disconnect style="margin-right:auto;color:var(--danger);border-color:var(--danger-border);">断开</button>' : ''}
+        ${canFS ? '<button class="btn ghost" data-local-file>本地文件</button>' : ''}
+        <button class="btn ghost" data-close-modal>取消</button>
+        <button class="btn" data-connect-gh>连接</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('[data-close-modal]').onclick = () => overlay.remove();
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  const localBtn = overlay.querySelector('[data-local-file]');
+  if (localBtn) localBtn.onclick = () => { overlay.remove(); pickFile(); };
+  const dcBtn = overlay.querySelector('[data-disconnect]');
+  if (dcBtn) dcBtn.onclick = () => { overlay.remove(); disconnectGitHub(); };
+
+  const connectBtn = overlay.querySelector('[data-connect-gh]');
+  connectBtn.onclick = async () => {
+    const repoRaw = overlay.querySelector('#gh-repo').value.trim()
+      .replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/\/+$/, '');
+    const token = overlay.querySelector('#gh-token').value.trim();
+    const branch = overlay.querySelector('#gh-branch').value.trim() || 'main';
+    const path = overlay.querySelector('#gh-path').value.trim().replace(/^\/+/, '') || 'annotations.js';
+    const remember = overlay.querySelector('#gh-remember').checked;
+    if (!/^[^\/\s]+\/[^\/\s]+$/.test(repoRaw)) { showToast('仓库格式应为 用户名/仓库名', 'error'); return; }
+    if (!token) { showToast('请填写访问令牌', 'error'); return; }
+    const parts = repoRaw.split('/');
+    connectBtn.disabled = true;
+    connectBtn.textContent = '连接中…';
+    const ok = await connectGitHub(
+      { owner: parts[0], repo: parts[1], branch, path, token },
+      { remember, silent: false }
+    );
+    if (ok) overlay.remove();
+    else { connectBtn.disabled = false; connectBtn.textContent = '连接'; }
+  };
+}
+
+function setSaveStatus(s) {
+  saveStatus = s;
+  const el = document.getElementById('fs-status');
+  if (!el) return;
+  const map = {
+    disconnected: '连接文件',
+    connected: '已同步',
+    saving: '保存中…',
+    error: '保存失败',
+    local: '仅本机'
+  };
+  el.textContent = map[s] || map.disconnected;
+  el.className = 'status-pill ' + s;
+}
+
+function exportData() {
+  const data = JSON.stringify(window.ANNOTATIONS, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'kaoyan-annotations-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('已导出备份文件', 'success');
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const obj = JSON.parse(e.target.result);
+      if (obj && typeof obj === 'object') {
+        window.ANNOTATIONS = {
+          tagDefs: obj.tagDefs || DEFAULT_TAG_DEFS,
+          questions: obj.questions || {},
+          vocab: obj.vocab || [],
+          customTags: obj.customTags || []
+        };
+        updateDatalist();
+        scheduleSave();
+        render();
+        showToast('导入成功', 'success');
+      }
+    } catch (err) {
+      showToast('导入失败：文件格式错误', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ===== Router ===== */
+function go(page) { state.page = page; render(); }
+
+function render() {
+  renderNav();
+  updateDatalist();
+  const btnTrans = document.getElementById('btn-hide-trans');
+  if (btnTrans) {
+    // 如果开启了隐藏，图标变闭眼，并添加高亮边框（on 类）
+    btnTrans.className = 'icon-btn' + (state.hideTranslation ? ' on' : '');
+    btnTrans.innerHTML = state.hideTranslation ? ICONS.eyeOff : ICONS.eye;
+  }
+  const app = document.getElementById('app');
+  const btnBack = document.getElementById('btn-back');
+  const titleEl = document.getElementById('header-title');
+
+  if (state.page === 'annotate') {
+    btnBack.style.display = 'inline-flex';
+    const paper = getCurrentPaper();
+    titleEl.textContent = paper ? paper.title : '';
+    renderAnnotate(app);
+  } else {
+    btnBack.style.display = 'none';
+    titleEl.textContent = '';
+    if (state.page === 'dashboard') app.innerHTML = `<div class="page-scroll">${renderDashboard()}</div>`;
+    else if (state.page === 'papers') app.innerHTML = `<div class="page-scroll">${renderPapers()}</div>`;
+    else if (state.page === 'search') app.innerHTML = `<div class="page-scroll">${renderSearch()}</div>`;
+    else if (state.page === 'filter') app.innerHTML = `<div class="page-scroll">${renderFilter()}</div>`;
+    else if (state.page === 'stats') app.innerHTML = `<div class="page-scroll">${renderStats()}</div>`;
+  }
+  setSaveStatus(saveStatus);
+}
+
+function renderNav() {
+  const items = [['dashboard', '仪表盘'], ['papers', '试卷库'], ['search', '搜索'], ['filter', '筛选'], ['stats', '统计']];
+  document.getElementById('nav').innerHTML = items.map(([k, v]) =>
+    `<button class="${state.page === k ? 'active' : ''}" data-action="nav" data-page="${k}">${v}</button>`
+  ).join('');
+}
+
+function renderDashboard() {
+  const papers = window.EXAM_DATA.papers || [];
+  const yearStats = [];
+
+  papers.forEach(p => {
+    let yTotal = 0, yWrong = 0;
+    (p.sections || []).forEach(s => {
+      const allQ = [];
+      if (s.questions) allQ.push(...s.questions);
+      (s.passages || []).forEach(ps => { if (ps.questions) allQ.push(...ps.questions); });
+      allQ.forEach(q => {
+        yTotal++;
+        const ann = window.ANNOTATIONS.questions[annKey(p, q.id)];
+        if (ann && ann.wrong) {
+          yWrong++;
+        }
+      });
+    });
+    yearStats.push({ year: p.year, title: p.title, total: yTotal, wrong: yWrong, paperId: p.id });
+  });
+  yearStats.sort((a, b) => a.year - b.year);
+
+  const vocab = window.ANNOTATIONS.vocab || [];
+  const maxWrong = Math.max(1, ...yearStats.map(s => s.wrong));
+  const chartHtml = yearStats.map(s => {
+    const h = s.wrong === 0 ? 0 : (s.wrong / maxWrong * 100);
+    const isZero = s.wrong === 0;
+    return `
+      <div class="year-col" data-action="open-paper" data-paper-id="${s.paperId}">
+        <div class="year-num ${isZero ? 'zero' : ''}">${s.wrong}</div>
+        <div class="year-bar-wrap">
+          <div class="year-bar ${isZero ? 'zero' : ''}" style="height:${h}%"></div>
+        </div>
+        <div class="year-label">${s.year}</div>
+        <div class="year-total">共 ${s.total} 题</div>
+      </div>
+    `;
+  }).join('');
+
+  const groups = { word: [], phrase: [], sentence: [] };
+  vocab.forEach(v => {
+    const realIdx = vocab.indexOf(v);
+    groups[classifyVocab(vocabDisplay(v))].push({ v, realIdx });
+  });
+
+  const renderCol = (label, list, cls) => {
+    if (!list.length) return '';
+    
+    const isSentence = cls === 'col-sentence';
+    // 【关键】根据开关状态生成类名
+    const hideClass = state.hideTranslation ? ' hide-trans' : '';
+
+    return `
+      <div class="vocab-col ${cls}">
+        <div class="vocab-col-title">${label} <span class="count">${list.length}</span></div>
+        <!-- 【关键】把 hideClass 拼在 class 里面 -->
+        <div class="vocab-col-content${hideClass}">
+          ${list.map(({v, realIdx}) => {
+            const display = esc(vocabDisplay(v));
+            const meaning = esc(v.meaning || '— 点击编辑 —');
+            const source = esc(v.source || '');
+
+            if (isSentence) {
+              return `
+                <div class="vocab-col-item sentence-item">
+                  <div class="word" data-vocab-idx="${realIdx}" data-edit-field="display">${display}</div>
+                  <div class="bottom-row">
+                    <span class="meaning" data-vocab-idx="${realIdx}" data-edit-field="meaning">${meaning}</span>
+                    <div class="item-right">
+                      <span class="source">${source}</span>
+                      <button class="del" data-action="del-vocab" data-idx="${realIdx}" title="删除">×</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            } else {
+              return `
+                <div class="vocab-col-item word-item">
+                  <span class="word" data-vocab-idx="${realIdx}" data-edit-field="display">${display}</span>
+                  <span class="meaning" data-vocab-idx="${realIdx}" data-edit-field="meaning">${meaning}</span>
+                  <div class="item-right">
+                    <span class="source">${source}</span>
+                    <button class="del" data-action="del-vocab" data-idx="${realIdx}" title="删除">×</button>
+                  </div>
+                </div>
+              `;
+            }
+          }).join('')}
+        </div>
+      </div>
+    `;
+  };
+
+  const cols = [
+    renderCol('单词', groups.word, 'col-word'),
+    renderCol('短语', groups.phrase, 'col-phrase'),
+    renderCol('句子', groups.sentence, 'col-sentence')
+  ].filter(Boolean).join('');
+
+  const vocabHtml = `<div class="vocab-columns">${cols}</div>`;
+
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h2 style="margin:0;">每年错题分布</h2>
+        <span style="color:var(--text-sub);font-size:12px;">点击年份进入试卷</span>
+      </div>
+      <div class="year-chart">${chartHtml}</div>
+    </div>
+
+    <div class="card">
+      <div class="vocab-header">
+        <h2 style="margin:0;">生词本</h2>
+      </div>
+      ${vocab.length === 0
+        ? '<div class="empty" style="padding:20px;">还没有生词。选中文章或选项里的单词，点书签图标添加。</div>'
+        : `<div class="vocab-list">${vocabHtml}</div>`}
+    </div>
+  `;
+}
+
+function renderPapers() {
+  const papers = window.EXAM_DATA.papers || [];
+  if (!papers.length) return `<div class="card"><div class="empty">暂无试卷</div></div>`;
+  return `
+    <div class="card">
+      <h1 style="font-size:20px;font-weight:700;margin-bottom:6px;">试卷库</h1>
+      <p style="color:var(--text-sub);font-size:13px;margin-bottom:16px;">共 ${papers.length} 年真题</p>
+      ${papers.map(p => `
+        <div class="paper-item" data-action="open-paper" data-paper-id="${p.id}">
+          <div>
+            <div style="font-weight:600;">${esc(p.title)}</div>
+            <div class="meta">${countAllQuestions(p)} 题 · ${(p.sections||[]).length} 个部分</div>
+          </div>
+          <div class="arrow">→</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function openPaper(id) {
+  state.paperId = id;
+  state.passageIndex = 0;
+  const paper = getCurrentPaper();
+  const first = buildSidebarItems(paper)[0];
+  if (first) { state.sectionId = first.secId; state.passageIndex = first.passageIndex || 0; }
+  go('annotate');
+}
+
+function renderAnnotate(app) {
+  app.innerHTML = `
+    <div class="annotate-layout">
+      <div class="section-nav" id="section-nav"></div>
+      <div class="article-pane" id="article-pane"></div>
+      <div class="questions-pane" id="questions-pane"></div>
+    </div>
+  `;
+  renderSectionNav();
+  renderArticle();
+  renderQuestions();
+}
+
+function renderSectionNav() {
+  const paper = getCurrentPaper();
+  const items = buildSidebarItems(paper);
+  document.getElementById('section-nav').innerHTML = items.map(item => {
+    const isActive = item.secId === state.sectionId &&
+      (item.secId !== 'reading-a' || state.passageIndex === item.passageIndex);
+    return `<div class="nav-item ${isActive ? 'active' : ''}" data-action="switch-section" data-sec="${item.secId}" data-idx="${item.passageIndex || 0}">${esc(item.label)}</div>`;
+  }).join('');
+}
+
+function switchSection(secId, idx) {
+  state.sectionId = secId;
+  state.passageIndex = idx || 0;
+  renderSectionNav();
+  renderArticle();
+  renderQuestions();
+  document.getElementById('article-pane').scrollTop = 0;
+  document.getElementById('questions-pane').scrollTop = 0;
+}
+
+function normalizeKeepLength(s) {
+  return String(s || '').replace(/[\r\n\t\u00A0\u2009\u202F]/g, ' ');
+}
+
+function renderArticle() {
+  const section = getCurrentSection();
+  const pane = document.getElementById('article-pane');
+  if (!section) { pane.innerHTML = ''; return; }
+  const paper = getCurrentPaper();
+  let content = '', title = '';
+  if (section.id === 'reading-a') {
+    const p = (section.passages || [])[state.passageIndex];
+    content = p ? (p.content || '') : '';
+    title = p ? (p.title || '') : '';
+  } else {
+    content = section.content || '';
+    title = section.name || '';
+  }
+
+  const qs = getAllQuestionsInSection(section);
+  const marks = [];
+  qs.forEach(q => {
+    const ann = getAnn(paper, q.id);
+    (ann.locations || []).forEach((l, i) => {
+      marks.push({ text: l.text, para: l.para, qid: q.id, idx: i, type: 'loc' });
+    });
+  });
+(window.ANNOTATIONS.vocab || []).forEach((v, i) => {
+  const m = vocabMark(v);
+  // 只处理文章里标的生词（旧数据没 target 的默认当 article 处理）
+  if (m && v.source === getSourceLabel() && v.target !== 'question') {
+    marks.push({ text: m, para: v.para || 0, offset: v.offset, context: v.context, idx: i, type: 'vocab' });
+  }
+});
+
+  const searchKeyword = (
+    state.searchHighlight &&
+    state.searchHighlight.paperId === paper.id &&
+    state.searchHighlight.sectionId === section.id &&
+    state.searchHighlight.passageIndex === state.passageIndex
+  ) ? state.searchHighlight.text : null;
+
+  const paras = content.split(/\n\n+/);
+  const html = paras.map((pRaw, i) => {
+    const paraNum = i + 1;
+    const p = normalizeKeepLength(pRaw);
+
+    // [[N]] 填空
+    const clozeRanges = [];
+    const clozeRe = /\[\[(\d+)\]\]/g;
+    let cm;
+    while ((cm = clozeRe.exec(p)) !== null) {
+      clozeRanges.push({
+        start: cm.index,
+        end: cm.index + cm[0].length,
+        num: cm[1]
+      });
+    }
+
+    // loc / vocab 范围（允许互相重叠）
+    const locRanges = [];
+    const vocabRanges = [];
+    marks.forEach(m => {
+      if (!m.text) return;
+      
+      // 如果是定位句，或者生词存了段落号(非0)，且与当前段不符，就跳过
+      if ((m.type === 'loc' || m.type === 'vocab') && m.para && m.para !== paraNum) return;
+      
+      const needle = normalizeKeepLength(m.text);
+      if (!needle) return;
+      let from = 0;
+      while (true) {
+        const idx = p.indexOf(needle, from);
+        if (idx === -1) break;
+        
+        let isMatch = true;
+        // 新逻辑：如果是生词且存了 context，用 context 验证是不是当初选中的那一个
+        if (m.type === 'vocab' && m.context) {
+          // 获取前后各 40 个字符
+          const leftStr = p.slice(Math.max(0, idx - 40), idx);
+          const rightStr = p.slice(idx + needle.length, idx + needle.length + 40);
+          
+          // 【核心修改】：过滤掉所有非英文字母！
+          const cleanLeft = leftStr.replace(/[^A-Za-z]/g, '').toLowerCase();
+          const cleanRight = rightStr.replace(/[^A-Za-z]/g, '').toLowerCase();
+          const expectLeft = (m.context.left || '').replace(/[^A-Za-z]/g, '').toLowerCase();
+          const expectRight = (m.context.right || '').replace(/[^A-Za-z]/g, '').toLowerCase();
+
+          // 比对纯字母序列
+          const leftOk = !expectLeft || cleanLeft.endsWith(expectLeft);
+          const rightOk = !expectRight || cleanRight.startsWith(expectRight);
+
+          if (!leftOk || !rightOk) {
+            isMatch = false;
+          }
+        }
+        
+        if (!isMatch) {
+          from = idx + 1;
+          continue;
+        }
+
+        const r = { start: idx, end: idx + needle.length, mark: m };
+        if (clozeRanges.some(c => !(r.end <= c.start || r.start >= c.end))) {
+          from = idx + 1;
+          continue;
+        }
+        
+        if (m.type === 'loc') locRanges.push(r);
+        else vocabRanges.push(r);
+        
+        // 只要匹配上了，或者旧数据没有 context，就只亮这一处
+        break;
+      }
+    });
+
+    // 搜索范围
+    const searchRanges = [];
+    if (searchKeyword) {
+      let from = 0;
+      while (true) {
+        const idx = p.indexOf(searchKeyword, from);
+        if (idx === -1) break;
+        searchRanges.push({ start: idx, end: idx + searchKeyword.length });
+        from = idx + searchKeyword.length;
+      }
+    }
+
+    // 合并边界
+    const boundaries = new Set([0, p.length]);
+    clozeRanges.forEach(r => { boundaries.add(r.start); boundaries.add(r.end); });
+    locRanges.forEach(r => { boundaries.add(r.start); boundaries.add(r.end); });
+    vocabRanges.forEach(r => { boundaries.add(r.start); boundaries.add(r.end); });
+    searchRanges.forEach(r => { boundaries.add(r.start); boundaries.add(r.end); });
+    const sorted = [...boundaries].filter(b => b >= 0 && b <= p.length).sort((a, b) => a - b);
+
+    function pickShortest(list, s, e) {
+      let best = null, bestLen = Infinity;
+      for (const r of list) {
+        if (s >= r.start && e <= r.end) {
+          const len = r.end - r.start;
+          if (len < bestLen) { bestLen = len; best = r; }
+        }
+      }
+      return best;
+    }
+
+    let out = '';
+    for (let k = 0; k < sorted.length - 1; k++) {
+      const s = sorted[k], e = sorted[k + 1];
+      if (s >= e) continue;
+      const inner = esc(p.slice(s, e));
+
+      const cloze = clozeRanges.find(r => s >= r.start && e <= r.end);
+      if (cloze) {
+        out += `<span class="q-ref" data-action="jump-q" data-qid="q${cloze.num}">${cloze.num}</span>`;
+        continue;
+      }
+
+      const loc = pickShortest(locRanges, s, e);
+      const vocabMark = pickShortest(vocabRanges, s, e);
+      const isSearch = searchRanges.some(r => s >= r.start && e <= r.end);
+
+      const vocabType = vocabMark ? classifyVocab(vocabMark.mark.text) : '';
+      // 判断当前碎片是否落在某个"句子"范围内
+      const inSentenceRange = vocabRanges.some(r => {
+        if (classifyVocab(r.mark.text) !== 'sentence') return false;
+        return s >= r.start && e <= r.end;
+      });
+      let extraCls = '';
+      if ((vocabType === 'word' || vocabType === 'phrase') && inSentenceRange) {
+        extraCls = ' in-sentence';   // 只在句子里时才继承背景
+      }
+      const vocabCls = vocabType
+        ? ('vocab-mark vocab-mark-' + vocabType + extraCls)
+        : '';
+
+      let chunk = inner;
+      if (vocabMark && loc) {
+        chunk = `<span class="${vocabCls} loc-mark" data-action="show-vocab" data-word="${esc(vocabMark.mark.text)}" data-qid="${loc.mark.qid}">${inner}</span>`;
+      } else if (vocabMark) {
+        chunk = `<span class="${vocabCls}" data-action="show-vocab" data-word="${esc(vocabMark.mark.text)}">${inner}</span>`;
+      } else if (loc) {
+        chunk = `<span class="loc-mark" data-action="jump-q" data-qid="${loc.mark.qid}">${inner}</span>`;
+      }
+
+      if (isSearch) {
+        chunk = `<mark class="search-hit">${chunk}</mark>`;
+      }
+      out += chunk;
+    }
+
+    return `<p class="para" data-para="${paraNum}">${out}</p>`;
+  }).join('');
+
+  pane.innerHTML = (title ? `<div class="article-title">${esc(title)}</div>` : '') +
+    (html || '<div class="empty">无内容</div>');
+}
+let vocabPopoverEl = null;
+
+function closeVocabPopover() {
+  if (vocabPopoverEl) { vocabPopoverEl.remove(); vocabPopoverEl = null; }
+}
+
+function showVocabPopover(word, x, y, qid) {
+  closeVocabPopover();
+  const vocab = window.ANNOTATIONS.vocab || [];
+  
+  // 1. 先找出当前点击的这个词（mark）对应的记录
+  const currentMarks = vocab.filter(v => vocabMark(v).toLowerCase() === word.toLowerCase());
+  if (!currentMarks.length) return;
+
+  // 2. 提取出这些记录所属的 display（忽略大小写），作为统一标识
+  const targetDisplays = new Set(currentMarks.map(v => vocabDisplay(v).toLowerCase()));
+
+  // 3. 在整个生词本中，寻找所有 display 属于上述集合的记录
+  const items = vocab.filter(v => targetDisplays.has(vocabDisplay(v).toLowerCase()));
+
+  // 4. 按 display 分组，把相同展示词的记录聚在一起
+  const groups = {};
+  items.forEach(v => {
+    const d = vocabDisplay(v);
+    if (!groups[d]) groups[d] = [];
+    groups[d].push(v);
+  });
+
+  const el = document.createElement('div');
+  el.className = 'vocab-popover';
+
+  let listHtml = '';
+  for (const [displayWord, list] of Object.entries(groups)) {
+    // 分组容器
+    listHtml += `<div class="vp-group" style="margin-bottom: 8px;">`;
+    // 【修改点】：只显示 displayWord，并用黑色加粗
+    listHtml += `<div style="color:var(--text); font-weight: 700; font-size: 15px; margin-bottom: 6px;">${esc(displayWord)}</div>`;    
+    // 分组内的具体释义
+    list.forEach(v => {
+      const realIdx = vocab.indexOf(v);
+      listHtml += `
+        <div class="vp-item" style="margin-top: 4px;">
+          <span class="vp-mean">${esc(v.meaning || '（暂无释义）')}</span>
+          <span class="vp-src">${esc(v.source || '')}</span>
+          <span class="vp-del" data-action="del-vocab-pop" data-idx="${realIdx}" title="删除这条记录">×</span>
+        </div>
+      `;
+    });
+    
+    listHtml += `</div>`;
+  }
+
+  const jumpHtml = qid
+    ? `<button class="vp-jump" data-action="jump-q" data-qid="${qid}">查看题目</button>`
+    : '';
+
+  el.innerHTML = `
+    <div class="vp-list" style="display:block;">${listHtml}</div>
+    <div style="display:flex;justify-content:flex-end; margin-top:8px;">${jumpHtml}</div>
+    `;
+  document.body.appendChild(el);
+
+  // 计算位置，防超出窗口
+  const rect = el.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
+  let left = x;
+  let top = y;
+  if (left + w > window.innerWidth - 10) left = window.innerWidth - w - 10;
+  if (left < 10) left = 10;
+  if (top + h > window.innerHeight - 10) top = y - h - 12;
+  if (top < 10) top = 10;
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+  vocabPopoverEl = el;
+}
+function renderQuestions() {
+  const section = getCurrentSection();
+  const paper = getCurrentPaper();
+  const pane = document.getElementById('questions-pane');
+  if (!section) { pane.innerHTML = ''; return; }
+  const qs = getAllQuestionsInSection(section);
+  if (!qs.length) { pane.innerHTML = '<div class="card"><div class="empty">本节暂无题目</div></div>'; return; }
+
+  const showAll = !!state.showSectionAnswer[section.id];
+  const hasOptions = qs.some(q => q.options && Object.keys(q.options).length > 0);
+
+  const toolbar = hasOptions ? `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+      <button class="btn ghost sm" data-action="toggle-section-answer" data-section="${section.id}">
+        ${showAll ? '隐藏全部答案' : '显示全部答案'}
+      </button>
+    </div>
+  ` : '';
+
+  pane.innerHTML = toolbar + qs.map(q => renderQCard(q, paper, section)).join('');
+}
+function markTextWithHighlights(text, ann, qid = null, optKey = null) {
+  if (!text) return '';
+  const ranges = [];
+
+  // 1. 匹配生词（只匹配属于当前题/选项的词）
+  (window.ANNOTATIONS.vocab || []).forEach(v => {
+    if (v.target !== 'question') return; // 只管题目里的
+    if (v.source !== getSourceLabel()) return; 
+    // 如果当前在题干渲染，只拿属于题干没 optKey 的词；如果在选项渲染，只拿对应选项的词
+    const vOpt = v.optKey || null;
+    if (vOpt !== optKey) return; 
+    
+    // 如果不属于当前题号，跳过
+    if (v.qid && v.qid !== qid) return; 
+
+    const m = vocabMark(v);
+    if (!m) return;
+    let from = 0;
+    while (true) {
+      const idx = text.indexOf(m, from);
+      if (idx === -1) break;
+      ranges.push({ start: idx, end: idx + m.length, text: m, type: 'vocab' });
+      from = idx + 1;
+    }
+  });
+
+  // 2. 匹配定位句（定位句属于整道题，不需要分选项）
+  if (ann && ann.locations) {
+    ann.locations.forEach(l => {
+      if (!l.text) return;
+      const m = l.text;
+      let from = 0;
+      while (true) {
+        const idx = text.indexOf(m, from);
+        if (idx === -1) break;
+        ranges.push({ start: idx, end: idx + m.length, text: m, type: 'loc' });
+        from = idx + 1;
+      }
+    });
+  }
+
+  if (!ranges.length) return esc(text);
+
+  // 去重与合并
+  ranges.sort((a, b) => a.start - b.start || (b.end - b.start) - (a.end - a.start));
+  const used = [];
+  ranges.forEach(r => {
+    if (used.some(u => !(r.end <= u.start || r.start >= u.end))) return;
+    used.push(r);
+  });
+  used.sort((a, b) => a.start - b.start);
+
+  let out = '';
+  let cursor = 0;
+  used.forEach(r => {
+    out += esc(text.slice(cursor, r.start));
+    const inner = esc(text.slice(r.start, r.end));
+    
+    if (r.type === 'vocab') {
+      const cls = classifyVocab(r.text);
+      out += `<span class="vocab-mark vocab-mark-${cls}" data-action="show-vocab" data-word="${esc(r.text)}">${inner}</span>`;
+    } else if (r.type === 'loc') {
+      out += `<span class="loc-mark">${inner}</span>`;
+    }
+    cursor = r.end;
+  });
+  out += esc(text.slice(cursor));
+  return out;
+}
+function renderQCard(q, paper, section) {
+  const ann = getAnn(paper, q.id);
+  const num = q.id.replace(/^q/, '');
+  const key = annKey(paper, q.id);
+  const expanded = !!state.expanded[key];
+  const showAns = !!state.showAnswer[key] || !!state.showSectionAnswer[section.id];
+  const hasOptions = q.options && Object.keys(q.options).length > 0;
+  const hasAnswer = q.answer && q.answer.trim();
+  const correctAns = hasAnswer ? q.answer.trim().toUpperCase() : '';
+  const userAns = ann.userAnswer || '';
+
+  let optionsHtml = '';
+  if (hasOptions) {
+    optionsHtml = Object.entries(q.options).map(([k, v]) => {
+      const optKeyCls = [];
+      if (userAns === k && !showAns) optKeyCls.push('picked');
+      if (showAns) {
+        if (correctAns === k) optKeyCls.push('correct');
+        else if (userAns === k) optKeyCls.push('wrong');
+      }
+      const optKeyId = key + '-' + k;
+      const inputOpen = !!state.optTagOpen[optKeyId];
+      const tags = getOptTags(ann, k);
+      const tagBtnCls = 'opt-tag-btn' + (inputOpen || tags.length ? ' on' : '');
+      const tagsInline = tags.length ? `
+        <div class="opt-tags-inline">
+          ${tags.map(t => `<span class="ot-chip">${esc(t)}<span class="rm" data-action="rm-opt-tag" data-qid="${q.id}" data-opt="${k}" data-tag="${esc(t)}">×</span></span>`).join('')}
+        </div>
+      ` : '';
+      const draftKey = 'optTag:' + optKeyId;
+      const draftVal = getDraft(draftKey);
+      const inputWrap = inputOpen ? `
+        <div class="opt-tag-wrap">
+          <input list="allCustomTags" data-opt-tag-input data-qid="${q.id}" data-opt="${k}"
+                 data-draft-key="${draftKey}"
+                 value="${esc(draftVal)}"
+                 placeholder="输入或选择标签，回车添加">
+        </div>
+      ` : '';
+      return `
+        <div class="opt-row">
+          <span class="opt-key ${optKeyCls.join(' ')}" data-action="pick-answer" data-qid="${q.id}" data-opt="${k}" title="记录我的答案">${k}</span>
+          <span class="opt-text">${markTextWithHighlights(v, ann, q.id, k)}</span>
+          <button class="${tagBtnCls}" data-action="toggle-opt-tag" data-qid="${q.id}" data-opt="${k}" title="选项标签">${ICONS.tag}</button>
+        </div>
+        ${tagsInline}
+        ${inputWrap}
+      `;
+    }).join('');
+  }
+
+  const stemText = q.stem && q.stem.trim() ? markTextWithHighlights(q.stem, ann, q.id, null) : '';
+  const typePills = (ann.types || []).map(t =>
+    `<span class="q-type-badge type-${t}">${esc(t)}</span>`
+  ).join('');
+  const indicators = typePills || '<span style="color:var(--text-light);font-size:11.5px;">未选题型</span>';
+
+  const tagPanelOpen = !!state.tagPanel[key];
+  let tagInputHtml = '';
+  if (tagPanelOpen) {
+    const chips = (ann.myTags || []).map(t =>
+      `<span class="chip">${esc(t)}<span class="rm" data-action="rm-my-tag" data-qid="${q.id}" data-tag="${esc(t)}">×</span></span>`
+    ).join('');
+    const draftKey = 'myTag:' + key;
+    const draftVal = getDraft(draftKey);
+    tagInputHtml = `
+      <div class="tag-input-wrap">
+        <div class="chips">${chips}</div>
+        <input list="allCustomTags" data-my-tag-input data-qid="${q.id}"
+               data-draft-key="${draftKey}"
+               value="${esc(draftVal)}"
+               placeholder="输入或选择标签，回车添加">
+      </div>
+    `;
+  }
+
+  let expandedHtml = '';
+  if (expanded) {
+    const typeChips = (window.ANNOTATIONS.tagDefs.types || []).map(t =>
+      `<span class="tag-chip type ${ann.types.includes(t) ? 'on' : ''}" data-action="toggle-type" data-qid="${q.id}" data-tag="${esc(t)}">${esc(t)}</span>`
+    ).join('');
+    const methodChips = (window.ANNOTATIONS.tagDefs.methods || []).map(m =>
+      `<span class="tag-chip method ${ann.methods.includes(m) ? 'on' : ''}" data-action="toggle-method" data-qid="${q.id}" data-tag="${esc(m)}">${esc(m)}</span>`
+    ).join('');
+    const locItems = (ann.locations || []).map((l, i) => `
+      <div class="loc-item">
+        <span class="loc-para">[${l.para}]</span>
+        <span class="loc-text" data-action="jump-para" data-para="${l.para}">${esc(l.text.length > 100 ? l.text.slice(0, 100) + '…' : l.text)}</span>
+        <span class="loc-del" data-action="del-loc" data-qid="${q.id}" data-idx="${i}">${ICONS.x}</span>
+      </div>
+    `).join('');
+
+    expandedHtml = `
+      <div class="loc-panel">
+        <div class="loc-title">
+          <span>定位句 (${ann.locations.length})</span>
+          <span style="font-size:10.5px;color:#854d0e;">选中文章文字添加</span>
+        </div>
+        ${locItems || '<div class="loc-empty">还没有定位句</div>'}
+      </div>
+      <div class="tag-area">
+        <div class="tag-section">
+          <div class="tag-section-title">题型</div>
+          <div class="tag-chips">${typeChips}</div>
+        </div>
+        <div class="tag-section">
+          <div class="tag-section-title">方法</div>
+          <div class="tag-chips">${methodChips}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  const cardCls = ['q-card'];
+  if (expanded) cardCls.push('expanded');
+  if (ann.wrong) cardCls.push('wrong-card');
+  else if (userAns) cardCls.push('done-card');
+
+  return `
+    <div class="${cardCls.join(' ')}" data-qid="${q.id}">
+      <div class="q-head">
+        <span class="q-badge">${num}</span>
+        ${stemText ? `<span class="q-stem-text">${stemText}</span>` : ''}
+      </div>
+      ${optionsHtml ? `<div class="options-wrap">${optionsHtml}</div>` : ''}
+      <div class="q-toggle-bar">
+        <div class="q-indicators">${indicators}</div>
+        <div class="q-toggle-actions">
+          ${hasOptions ? `<button class="icon-btn sm ${tagPanelOpen ? 'on' : ''}" data-action="toggle-tag-panel" data-qid="${q.id}" title="题目标签">${ICONS.tag}</button>` : ''}
+          <button class="icon-btn sm ${expanded ? 'on' : ''}" data-action="toggle-expand" data-qid="${q.id}" title="${expanded ? '收起标注' : '展开标注'}">${ICONS.edit}</button>
+        </div>
+      </div>
+      ${tagInputHtml}
+      ${expandedHtml}
+    </div>
+  `;
+}
+
+/* ===== Actions ===== */
+function pickAnswer(qid, optKey) {
+  const paper = getCurrentPaper();
+  const ann = getAnn(paper, qid);
+  ann.userAnswer = ann.userAnswer === optKey ? '' : optKey;
+  
+  const section = getCurrentSection();
+  const key = annKey(paper, qid);
+  
+  // 只要当前是“显示答案”状态（不管是单题显示还是全篇显示），都要同步计算错题
+  if (state.showAnswer[key] || (section && state.showSectionAnswer[section.id])) {
+    const qs = getAllQuestionsInSection(section);
+    const q = qs.find(x => x.id === qid);
+    if (q && q.answer) {
+      const correct = q.answer.trim().toUpperCase();
+      ann.wrong = ann.userAnswer && ann.userAnswer !== correct;
+    }
+  }
+  
+  scheduleSave();
+  renderQuestions();
+}
+
+function toggleShowAnswer(qid) {
+  const paper = getCurrentPaper();
+  const key = annKey(paper, qid);
+  state.showAnswer[key] = !state.showAnswer[key];
+  if (state.showAnswer[key]) {
+    const section = getCurrentSection();
+    const qs = getAllQuestionsInSection(section);
+    const q = qs.find(x => x.id === qid);
+    const ann = getAnn(paper, qid);
+    if (q && q.answer && ann.userAnswer) {
+      const correct = q.answer.trim().toUpperCase();
+      ann.wrong = ann.userAnswer !== correct;
+      scheduleSave();
+    }
+  }
+  renderQuestions();
+}
+
+function toggleExpand(qid) {
+  const paper = getCurrentPaper();
+  const key = annKey(paper, qid);
+  state.expanded[key] = !state.expanded[key];
+  if (state.expanded[key]) state.tagPanel[key] = false;
+  renderQuestions();
+}
+
+function toggleTagPanel(qid) {
+  const paper = getCurrentPaper();
+  const key = annKey(paper, qid);
+  state.tagPanel[key] = !state.tagPanel[key];
+  if (state.tagPanel[key]) state.expanded[key] = false;
+  renderQuestions();
+}
+
+function toggleOptTagInput(qid, optKey) {
+  const paper = getCurrentPaper();
+  const id = annKey(paper, qid) + '-' + optKey;
+  state.optTagOpen[id] = !state.optTagOpen[id];
+  renderQuestions();
+}
+
+function addOptTag(qid, optKey, val) {
+  const paper = getCurrentPaper();
+  const customTags = window.ANNOTATIONS.customTags || (window.ANNOTATIONS.customTags = []);
+  if (!customTags.includes(val)) customTags.push(val);
+  const ann = getAnn(paper, qid);
+  const tags = getOptTags(ann, optKey);
+  if (!tags.includes(val)) tags.push(val);
+  // 清草稿
+  const draftKey = 'optTag:' + annKey(paper, qid) + '-' + optKey;
+  delete state.inputDrafts[draftKey];
+  updateDatalist();
+  scheduleSave();
+  renderQuestions();
+}
+
+function removeOptTag(qid, optKey, tag) {
+  const paper = getCurrentPaper();
+  const ann = getAnn(paper, qid);
+  const tags = getOptTags(ann, optKey);
+  const i = tags.indexOf(tag);
+  if (i >= 0) tags.splice(i, 1);
+  scheduleSave();
+  renderQuestions();
+}
+
+function toggleType(qid, tag) {
+  const paper = getCurrentPaper();
+  const ann = getAnn(paper, qid);
+  const i = ann.types.indexOf(tag);
+  if (i >= 0) ann.types.splice(i, 1); else ann.types.push(tag);
+  scheduleSave(); renderQuestions();
+}
+
+function toggleMethod(qid, tag) {
+  const paper = getCurrentPaper();
+  const ann = getAnn(paper, qid);
+  const i = ann.methods.indexOf(tag);
+  if (i >= 0) ann.methods.splice(i, 1); else ann.methods.push(tag);
+  scheduleSave(); renderQuestions();
+}
+
+function addMyTag(qid, val) {
+  const paper = getCurrentPaper();
+  const customTags = window.ANNOTATIONS.customTags || (window.ANNOTATIONS.customTags = []);
+  if (!customTags.includes(val)) customTags.push(val);
+  const ann = getAnn(paper, qid);
+  if (!ann.myTags.includes(val)) ann.myTags.push(val);
+  const draftKey = 'myTag:' + annKey(paper, qid);
+  delete state.inputDrafts[draftKey];
+  updateDatalist();
+  scheduleSave();
+  renderQuestions();
+}
+
+function removeMyTag(qid, tag) {
+  const paper = getCurrentPaper();
+  const ann = getAnn(paper, qid);
+  const i = ann.myTags.indexOf(tag);
+  if (i >= 0) ann.myTags.splice(i, 1);
+  scheduleSave(); renderQuestions();
+}
+
+function delLocation(qid, idx) {
+  const paper = getCurrentPaper();
+  const ann = getAnn(paper, qid);
+  ann.locations.splice(idx, 1);
+  scheduleSave(); renderQuestions(); renderArticle();
+}
+
+function jumpToPara(paraNum) {
+  const el = document.querySelector(`.para[data-para="${paraNum}"]`);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('flash');
+  setTimeout(() => el.classList.remove('flash'), 1200);
+}
+
+function jumpToQuestion(qid) {
+  const el = document.querySelector(`.q-card[data-qid="${qid}"]`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ===== Vocab ===== */
+function delVocab(idx) {
+  if (!confirm('确定删除这个生词吗？')) return;
+  window.ANNOTATIONS.vocab.splice(idx, 1);
+  scheduleSave();
+  render();
+}
+
+function editVocabMeaning(idx, newMeaning) {
+  if (window.ANNOTATIONS.vocab[idx]) {
+    window.ANNOTATIONS.vocab[idx].meaning = newMeaning;
+    scheduleSave();
+    showToast('释义已更新', 'success');
+  }
+}
+
+/* ===== Selection & Float Bar ===== */
+let floatBar = null;
+let clickTimer = null;
+
+document.addEventListener('mousedown', e => {
+  if (e.target.closest('.float-bar')) return;
+  if (e.target.closest('.vocab-popover')) return;
+  if (e.target.closest('[data-action="show-vocab"]')) return;
+  removeFloatBar();
+  closeVocabPopover();
+}, true);
+window.addEventListener('scroll', () => removeFloatBar(), true);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') removeFloatBar();
+});
+
+document.addEventListener('mouseup', e => {
+  if (state.page !== 'annotate') return;
+  if (e.target.closest('.float-bar')) return;
+  if (e.target.closest('.opt-key')) return;
+  if (e.target.closest('input, textarea, button')) return;
+  if (e.target.closest('[data-action="show-vocab"]')) return;
+  if (e.target.closest('[data-action="del-vocab-pop"]')) return;
+  const host = e.target.closest('.para, .opt-text, .q-stem-text');
+  if (!host) return;
+
+  // 每次点击清除上一次的计时器
+  if (clickTimer) clearTimeout(clickTimer);
+
+  // 记录当前是第几次点击
+  const count = e.detail;
+
+  // 设置 250ms 的等待窗口，如果期间没有继续点击，才执行对应的操作
+  clickTimer = setTimeout(() => {
+    if (count === 2) {
+      // 双击：选中单词
+      selectWordAt(e.clientX, e.clientY);
+    } else if (count === 3) {
+      // 三击：选中句子
+      selectSentenceAt(e.clientX, e.clientY);
+    } else if (count >= 4) {
+      // 四击及以上：选中整个段落
+      selectParagraphAt(e.clientX, e.clientY);
+    }
+    
+    // 选完后弹出悬浮工具栏
+    // 如果是单击拖拽（count === 1），selectedText 就是用户拖拽的文字，会自动弹出；
+    // 如果是单纯单击，selectedText 为空，showFloatBarAt 内部会直接 return，不会弹出。
+    showFloatBarAt(e.pageX, e.pageY);
+    clickTimer = null;
+  }, 250);
+});
+
+function selectWordAt(clientX, clientY) {
+  let range = null;
+  if (document.caretRangeFromPoint) {
+    range = document.caretRangeFromPoint(clientX, clientY);
+  } else if (document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(clientX, clientY);
+    if (pos) {
+      range = document.createRange();
+      range.setStart(pos.offsetNode, pos.offset);
+      range.collapse(true);
+    }
+  }
+  if (!range) return;
+  const node = range.startContainer;
+  if (node.nodeType !== 3) return;
+  const text = node.nodeValue;
+  const offset = range.startOffset;
+  const isWordChar = c => /[A-Za-z0-9'\-_]/.test(c);
+  let start = offset;
+  while (start > 0 && isWordChar(text[start - 1])) start--;
+  let end = offset;
+  while (end < text.length && isWordChar(text[end])) end++;
+  if (start === end) {
+    if (offset < text.length && isWordChar(text[offset])) {
+      end = offset;
+      while (end < text.length && isWordChar(text[end])) end++;
+    } else { return; }
+  }
+  if (start >= end) return;
+  const nr = document.createRange();
+  nr.setStart(node, start);
+  nr.setEnd(node, end);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(nr);
+}
+
+function showFloatBarAt(pageX, pageY) {
+  const sel = window.getSelection();
+  const text = sel.toString().trim();
+  removeFloatBar();
+  if (!text || text.length < 2 || text.length > 400) return;
+  const range = sel.getRangeAt(0);
+  let node = range.startContainer;
+  let el = node.nodeType === 3 ? node.parentElement : node;
+  if (!el || !el.closest) return;
+  const paraEl = el.closest('.para');
+  const optEl = el.closest('.opt-text');
+  const stemEl = el.closest('.q-stem-text');
+  if (!paraEl && !optEl && !stemEl) return;
+  state.selectedText = text;
+  state.selectedPara = paraEl ? parseInt(paraEl.dataset.para) : 0;
+  state.selectedContext = getSelectionContext();
+  // 新增：记录是在文章里选的，还是在题目/选项里选的
+  if (paraEl) {
+    state.selectedTarget = 'article';
+    state.selectedQid = null;
+    state.selectedOpt = null;
+  } else {
+    state.selectedTarget = 'question';
+    // 向上找最近的题目卡片
+    const card = el.closest('.q-card');
+    state.selectedQid = card ? card.dataset.qid : null;
+    
+    // 向上找最近的选项行
+    const optRow = el.closest('.opt-row');
+    if (optRow) {
+      const optKeyEl = optRow.querySelector('.opt-key');
+      state.selectedOpt = optKeyEl ? optKeyEl.textContent.trim() : null;
+    } else {
+      state.selectedOpt = null; // 说明是在题干里选的
+    }
+  }
+  let buttons = '';
+  const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+  if (paraEl && wordCount >= 2) {
+    buttons += `<button class="fb-loc" data-action="add-location" title="加为定位句">${ICONS.target}</button>`;
+  }
+  buttons += `<button class="fb-vocab" data-action="add-vocab" title="加入生词本">${ICONS.bookmark}</button>`;
+  floatBar = document.createElement('div');
+  floatBar.className = 'float-bar';
+  const x = Math.min(pageX + 8, window.innerWidth - 120);
+  floatBar.style.left = x + 'px';
+  floatBar.style.top = (pageY + 8) + 'px';
+  floatBar.innerHTML = buttons;
+  document.body.appendChild(floatBar);
+}
+function getSelectionContext() {
+  const sel = window.getSelection();
+  if (!sel.rangeCount) return null;
+  const range = sel.getRangeAt(0);
+  let el = range.startContainer;
+  el = el.nodeType === 3 ? el.parentElement : el;
+  const para = el.closest ? el.closest('.para') : null;
+  if (!para) return null;
+  
+  const preRange = document.createRange();
+  preRange.selectNodeContents(para);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  const leftContext = preRange.toString().slice(-20); // 前面 20 个字符
+  
+  const postRange = document.createRange();
+  postRange.selectNodeContents(para);
+  postRange.setStart(range.endContainer, range.endOffset);
+  const rightContext = postRange.toString().slice(0, 20); // 后面 20 个字符
+
+  return { left: leftContext, right: rightContext };
+}
+function removeFloatBar() {
+  if (floatBar) { floatBar.remove(); floatBar = null; }
+}
+
+function selectSentenceAt(clientX, clientY) {
+  let range = document.caretRangeFromPoint ? document.caretRangeFromPoint(clientX, clientY) : null;
+  if (!range && document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(clientX, clientY);
+    if (pos) {
+      range = document.createRange();
+      range.setStart(pos.offsetNode, pos.offset);
+    }
+  }
+  if (!range) return;
+  const startNode = range.startContainer;
+  if (startNode.nodeType !== 3) return;
+  const host = startNode.parentElement && startNode.parentElement.closest
+    ? startNode.parentElement.closest('.para, .opt-text, .q-stem-text') : null;
+  if (!host) return;
+  const walker = document.createTreeWalker(host, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  let n;
+  while ((n = walker.nextNode())) nodes.push(n);
+  const positions = [];
+  let fullText = '';
+  nodes.forEach(node => {
+    positions.push({ node, start: fullText.length, end: fullText.length + node.nodeValue.length });
+    fullText += node.nodeValue;
+  });
+  let clickOffset = -1;
+  for (const p of positions) {
+    if (p.node === startNode) { clickOffset = p.start + range.startOffset; break; }
+  }
+  if (clickOffset < 0) return;
+  let start = clickOffset;
+  while (start > 0 && !/[.?!。？！\n]/.test(fullText[start - 1])) start--;
+  while (start < clickOffset && /[\s.?!。？！]/.test(fullText[start])) start++;
+  let end = clickOffset;
+  while (end < fullText.length && !/[.?!。？！\n]/.test(fullText[end])) end++;
+  if (end < fullText.length && /[.?!。？！]/.test(fullText[end])) end++;
+  if (start >= end) return;
+  function locate(off) {
+    for (const p of positions) {
+      if (off >= p.start && off < p.end) return { node: p.node, offset: off - p.start };
+    }
+    const last = positions[positions.length - 1];
+    return { node: last.node, offset: last.node.nodeValue.length };
+  }
+  const sp = locate(start);
+  const ep = locate(end);
+  const nr = document.createRange();
+  nr.setStart(sp.node, sp.offset);
+  nr.setEnd(ep.node, ep.offset);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(nr);
+}
+function selectParagraphAt(clientX, clientY) {
+  let range = document.caretRangeFromPoint ? document.caretRangeFromPoint(clientX, clientY) : null;
+  if (!range && document.caretPositionFromPoint) {
+    const pos = document.caretPositionFromPoint(clientX, clientY);
+    if (pos) {
+      range = document.createRange();
+      range.setStart(pos.offsetNode, pos.offset);
+    }
+  }
+  if (!range) return;
+  const startNode = range.startContainer;
+  if (startNode.nodeType !== 3) return;
+  
+  // 找到所在的整个段落/题干/选项容器
+  const host = startNode.parentElement && startNode.parentElement.closest
+    ? startNode.parentElement.closest('.para, .opt-text, .q-stem-text') : null;
+  if (!host) return;
+
+  // 直接选中容器的全部内容
+  const nr = document.createRange();
+  nr.selectNodeContents(host);
+  
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(nr);
+}
+function showLocationModal() {
+  const section = getCurrentSection();
+  const paper = getCurrentPaper();
+  const qs = getAllQuestionsInSection(section);
+  if (!qs.length) { showToast('本节没有题目', 'error'); return; }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>添加定位句到哪道题？</h3>
+      <div class="modal-body">
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;">
+          ${qs.map(q => `
+            <div data-pick-qid="${q.id}" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .12s;"
+                 onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+              <span style="font-weight:700;color:var(--primary);">${q.id.replace('q','')}.</span>
+              <span style="font-size:13px;">${esc((q.stem || '').slice(0, 50))}${(q.stem||'').length > 50 ? '…' : ''}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" data-close-modal>取消</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('[data-close-modal]').onclick = () => overlay.remove();
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+  overlay.querySelectorAll('[data-pick-qid]').forEach(el => {
+    el.onclick = () => {
+      const qid = el.dataset.pickQid;
+      overlay.remove();
+      addLocationToQuestion(qid);
+    };
+  });
+}
+
+function addLocationToQuestion(qid) {
+  const text = normalizeKeepLength(state.selectedText).trim();
+  const para = state.selectedPara;
+  removeFloatBar();
+  if (!text || !para) return;
+  const paper = getCurrentPaper();
+  const ann = getAnn(paper, qid);
+  ann.locations.push({ text, para, note: '' });
+  scheduleSave(); renderQuestions(); renderArticle();
+  showToast('已添加定位句', 'success');
+}
+function vocabMark(v) {
+  // mark = 文章里高亮的词；兼容旧数据
+  return v.mark || v.word || '';
+}
+function vocabDisplay(v) {
+  // display = 生词本里展示的词；兼容旧数据
+  return v.display || v.word || '';
+}
+function getSourceLabel() {
+  const paper = getCurrentPaper();
+  const section = getCurrentSection();
+  if (!paper) return '';
+  const year = paper.year;
+  if (!section) return String(year);
+  let tag = '';
+  if (section.id === 'reading-a') tag = 'T' + (state.passageIndex + 1);
+  else if (section.id === 'cloze') tag = '完型';
+  else if (section.id === 'reading-b') tag = '新题型';
+  else if (section.id === 'translation') tag = '翻译';
+  else if (section.id === 'writing') tag = '写作';
+  return tag ? `${year} ${tag}` : String(year);
+}
+
+function addVocab() {
+  const text = normalizeKeepLength(state.selectedText).trim();
+  removeFloatBar();
+  if (!text) return;
+  const vocab = window.ANNOTATIONS.vocab || (window.ANNOTATIONS.vocab = []);
+  const source = getSourceLabel();
+
+  // ==========================================
+  // 【核心修复】：增加容错匹配逻辑
+  // ==========================================
+  let dictEntry = null;
+  if (window.EXAM_DICT) {
+    // 1. 先尝试全小写精确匹配
+    const key = text.toLowerCase();
+    dictEntry = window.EXAM_DICT[key];
+    
+    // 2. 如果没找到，尝试去掉首尾可能被误选中的标点符号（如引号、逗号、句号）
+    if (!dictEntry) {
+      const cleanKey = key.replace(/^[^a-z]+|[^a-z]+$/g, '');
+      if (cleanKey) {
+        dictEntry = window.EXAM_DICT[cleanKey];
+      }
+    }
+    // 3. 如果还没找到，尝试去掉尾部复数/时态（如 's', 'ed', 'ing'）再查一次（可选，最稳妥）
+    if (!dictEntry && key.endsWith('s')) {
+      dictEntry = window.EXAM_DICT[key.slice(0, -1)];
+    }
+  }
+
+  const autoMeaning = dictEntry ? dictEntry.meaning : '';
+  const autoCategory = dictEntry ? dictEntry.category : '';
+  // ==========================================
+
+  // 寻找是否存在重复记录
+  const existSame = vocab.findIndex(v => {
+    if (vocabMark(v) !== text) return false;
+    if (v.source !== source) return false;
+    if (!v.context || !state.selectedContext) {
+      return (v.para || 0) === (state.selectedPara || 0);
+    }
+    return (v.context.left || '') === (state.selectedContext.left || '') &&
+           (v.context.right || '') === (state.selectedContext.right || '');
+  });
+
+  if (existSame >= 0) {
+    if (!confirm(`"${text}" (${source}) 该位置的生词已在生词本中，要删除吗？`)) return;
+    vocab.splice(existSame, 1);
+    scheduleSave();
+    if (state.page === 'annotate') renderArticle();
+    return;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  
+  // 标题加上分类标签
+  const badgeHtml = autoCategory 
+    ? `<span style="font-size:11px;font-weight:normal;background:#f1f5f9;color:#64748b;padding:2px 8px;border-radius:10px;margin-left:8px;vertical-align:middle;">${autoCategory}</span>` 
+    : '';
+
+  overlay.innerHTML = `
+    <div class="modal">
+      <h3>添加生词 ${badgeHtml}</h3>
+      <div class="modal-body">
+        <div style="margin-bottom:10px;">
+          <input id="vocab-display-input" value="${esc(text)}"
+                 placeholder="单词 / 短语"
+                 style="width:100%;padding:8px 12px;font-size:14px;border:1px solid var(--border);border-radius:8px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <input id="vocab-meaning-input" placeholder="释义（可留空）"
+                 value="${esc(autoMeaning)}"
+                 style="width:100%;padding:8px 12px;font-size:14px;border:1px solid var(--border);border-radius:8px;outline:none;box-sizing:border-box;">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" data-close-modal>取消</button>
+        <button class="btn" data-save-vocab>添加</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const displayInput = overlay.querySelector('#vocab-display-input');
+  const meaningInput = overlay.querySelector('#vocab-meaning-input');
+  displayInput.focus();
+  
+  if (autoMeaning) {
+    meaningInput.select(); 
+  } else {
+    displayInput.select();
+  }
+
+  overlay.querySelector('[data-close-modal]').onclick = () => overlay.remove();
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  const save = () => {
+    const finalDisplay = displayInput.value.trim() || text;
+    const meaning = meaningInput.value.trim();
+
+    vocab.unshift({
+      mark: text,
+      display: finalDisplay,
+      meaning: meaning,
+      para: state.selectedPara || 0,
+      context: state.selectedContext,
+      target: state.selectedTarget || 'article',
+      qid: state.selectedQid,
+      optKey: state.selectedOpt,
+      source: source,
+      date: new Date().toISOString().slice(0, 10),
+      category: autoCategory
+    });
+    overlay.remove();
+    scheduleSave();
+    if (state.page === 'annotate') {
+      renderArticle();
+      renderQuestions();
+    }
+    showToast('已加入生词本', 'success');
+  };
+
+  overlay.querySelector('[data-save-vocab]').onclick = save;
+  meaningInput.onkeydown = e => { if (e.key === 'Enter') save(); };
+  displayInput.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); meaningInput.focus(); } };
+}
+
+
+
+/* ===== Filter ===== */
+function renderFilter() {
+  const defs = window.ANNOTATIONS.tagDefs;
+  const customTags = window.ANNOTATIONS.customTags || [];
+  const typeChips = (defs.types || []).map(t =>
+    `<span class="tag-chip type ${state.filterTypes.includes(t) ? 'on' : ''}" data-action="filter-type" data-tag="${esc(t)}">${esc(t)}</span>`
+  ).join('');
+  const methodChips = (defs.methods || []).map(m =>
+    `<span class="tag-chip method ${state.filterMethods.includes(m) ? 'on' : ''}" data-action="filter-method" data-tag="${esc(m)}">${esc(m)}</span>`
+  ).join('');
+  const myTagChips = customTags.map(t =>
+    `<span class="tag-chip ${state.filterMyTags.includes(t) ? 'on' : ''}" style="${state.filterMyTags.includes(t) ? 'background:var(--purple);color:#fff;border-color:var(--purple);' : ''}" data-action="filter-mytag" data-tag="${esc(t)}">${esc(t)}</span>`
+  ).join('');
+  const statusBtn = (v, label) =>
+    `<button class="btn sm ${state.filterStatus === v ? '' : 'ghost'}" data-action="filter-status" data-status="${v}">${label}</button>`;
+  const results = filterQuestions();
+  return `
+    <div class="card">
+      <h1 style="font-size:20px;font-weight:700;margin-bottom:14px;">筛选</h1>
+      <div class="filter-bar">
+        <div class="filter-group"><label>题型：</label>${typeChips || '<span style="color:var(--text-sub);font-size:13px;">无</span>'}</div>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-group"><label>方法：</label>${methodChips || '<span style="color:var(--text-sub);font-size:13px;">无</span>'}</div>
+      </div>
+      ${customTags.length ? `
+      <div class="filter-bar">
+        <div class="filter-group"><label>我的标签：</label>${myTagChips}</div>
+      </div>` : ''}
+      <div class="filter-bar" style="margin-bottom:0;">
+        <div class="filter-group"><label>对错：</label>
+          ${statusBtn('all', '全部')}
+          ${statusBtn('wrong', '错题')}
+          ${statusBtn('ok', '对题')}
+          ${statusBtn('undone', '未做')}
+        </div>
+        <button class="btn ghost sm" data-action="filter-clear">清空筛选</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>结果 (${results.length})</h2>
+      ${results.length === 0 ? '<div class="empty">没有匹配的题目</div>' : results.map(r => renderFilterResult(r)).join('')}
+    </div>
+  `;
+}
+
+function filterQuestions() {
+  const papers = window.EXAM_DATA.papers || [];
+  const results = [];
+  papers.forEach(paper => {
+    (paper.sections || []).forEach(section => {
+      const allQ = [];
+      if (section.questions) allQ.push(...section.questions);
+      (section.passages || []).forEach(p => { if (p.questions) allQ.push(...p.questions); });
+      allQ.forEach(q => {
+        const ann = window.ANNOTATIONS.questions[annKey(paper, q.id)];
+        if (!ann) return;
+        if (state.filterTypes.length && !state.filterTypes.some(t => (ann.types || []).includes(t))) return;
+        if (state.filterMethods.length && !state.filterMethods.some(m => (ann.methods || []).includes(m))) return;
+        if (state.filterMyTags.length && !state.filterMyTags.some(t => (ann.myTags || []).includes(t))) return;
+        if (state.filterStatus === 'wrong' && !ann.wrong) return;
+        if (state.filterStatus === 'ok' && ann.wrong) return;
+        if (state.filterStatus === 'undone' && ann.userAnswer) return;
+        results.push({ paper, section, q, ann });
+      });
+    });
+  });
+  return results;
+}
+
+function renderFilterResult({ paper, section, q, ann }) {
+  const num = q.id.replace(/^q/, '');
+  const types = (ann.types || []).map(t => `<span class="tag-chip type on" style="cursor:default;">${esc(t)}</span>`).join('');
+  const methods = (ann.methods || []).map(m => `<span class="tag-chip method on" style="cursor:default;">${esc(m)}</span>`).join('');
+  const myTags = (ann.myTags || []).map(t => `<span class="tag-chip" style="cursor:default;background:var(--purple);color:#fff;border-color:var(--purple);">${esc(t)}</span>`).join('');
+  const locs = (ann.locations || []).map(l =>
+    `<div class="loc-item"><span class="loc-para">[${l.para}]</span><span class="loc-text">${esc(l.text)}</span></div>`
+  ).join('');
+  const doneInfo = ann.userAnswer
+    ? `<span style="font-size:11.5px;color:${ann.wrong ? 'var(--danger)' : 'var(--success)'};font-weight:600;flex-shrink:0;">${ann.userAnswer} ${ann.wrong ? '错' : '对'}</span>`
+    : '';
+
+  let passageIdx = 0;
+  if (section.id === 'reading-a' && section.passages) {
+    const p = section.passages.find(ps => (ps.questions || []).some(x => x.id === q.id));
+    if (p) passageIdx = section.passages.indexOf(p);
+  }
+
+  return `
+    <div class="q-card" style="margin-bottom:10px;cursor:pointer;"
+         data-action="jump-to-paper" data-paper="${paper.id}" data-section="${section.id}" data-passage="${passageIdx}">
+      <div class="q-head">
+        <span class="q-badge">${num}</span>
+        <span class="q-stem-text">${esc(q.stem || '（无题干）')}</span>
+        ${doneInfo}
+      </div>
+      <div style="font-size:11px;color:var(--text-light);margin-bottom:4px;">${esc(paper.title)} · ${esc(section.name)}</div>
+      ${locs ? `<div class="loc-panel" style="margin-top:6px;">${locs}</div>` : ''}
+      ${(types || methods || myTags) ? `<div class="tag-chips" style="margin-top:8px;">${types} ${methods} ${myTags}</div>` : ''}
+    </div>
+  `;
+}
+
+function jumpToPaper(paperId, sectionId, passageIdx) {
+  state.paperId = paperId;
+  state.sectionId = sectionId;
+  state.passageIndex = passageIdx || 0;
+  go('annotate');
+}
+
+/* ===== Stats ===== */
+function renderStats() {
+  const papers = window.EXAM_DATA.papers || [];
+  const typeCount = {}, methodCount = {}, myTagCount = {}, optTagCount = {};
+  let totalQ = 0, done = 0, wrong = 0, locTotal = 0;
+
+  papers.forEach(paper => {
+    (paper.sections || []).forEach(section => {
+      const allQ = [];
+      if (section.questions) allQ.push(...section.questions);
+      (section.passages || []).forEach(p => { if (p.questions) allQ.push(...p.questions); });
+      allQ.forEach(q => {
+        totalQ++;
+        const ann = window.ANNOTATIONS.questions[annKey(paper, q.id)];
+        if (!ann) return;
+        if (ann.userAnswer) done++;
+        if (ann.wrong) wrong++;
+        locTotal += (ann.locations || []).length;
+        (ann.types || []).forEach(t => typeCount[t] = (typeCount[t] || 0) + 1);
+        (ann.methods || []).forEach(m => methodCount[m] = (methodCount[m] || 0) + 1);
+        (ann.myTags || []).forEach(t => myTagCount[t] = (myTagCount[t] || 0) + 1);
+        Object.values(ann.options || {}).forEach(o => {
+          (o.tags || []).forEach(t => optTagCount[t] = (optTagCount[t] || 0) + 1);
+        });
+      });
+    });
+  });
+
+  const renderBars = (data, cls) => {
+    const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return '<div class="empty" style="padding:16px;">暂无数据</div>';
+    const max = Math.max(1, ...entries.map(e => e[1]));
+    return entries.map(([k, v]) => `
+      <div class="stat-row">
+        <span class="name">${esc(k)}</span>
+        <div class="stat-bar-wrap"><div class="stat-bar ${cls}" style="width:${(v / max * 100).toFixed(1)}%"></div></div>
+        <span class="num">${v}</span>
+      </div>
+    `).join('');
+  };
+
+  return `
+    <div class="card">
+      <h1 style="font-size:20px;font-weight:700;margin-bottom:14px;">统计</h1>
+      <div class="dash-grid">
+        <div class="dash-box"><div class="num">${totalQ}</div><div class="label">总题数</div></div>
+        <div class="dash-box done"><div class="num">${done}</div><div class="label">已做</div></div>
+        <div class="dash-box wrong"><div class="num">${wrong}</div><div class="label">错题</div></div>
+        <div class="dash-box"><div class="num">${locTotal}</div><div class="label">定位句</div></div>
+      </div>
+    </div>
+    <div class="card"><h2>题型分布</h2>${renderBars(typeCount, 'type')}</div>
+    <div class="card"><h2>方法使用</h2>${renderBars(methodCount, 'method')}</div>
+    <div class="card"><h2>题目标签</h2>${renderBars(myTagCount, 'mytag')}</div>
+    <div class="card"><h2>选项标签</h2>${renderBars(optTagCount, 'mytag')}</div>
+  `;
+}
+/* ===== Search Page ===== */
+function parseSource(source) {
+  const m = String(source || '').match(/^(\d{4})\s+(.+)$/);
+  if (!m) return null;
+  return { year: parseInt(m[1]), tag: m[2].trim() };
+}
+
+function jumpToSource(source, word) {
+  const parsed = parseSource(source);
+  if (!parsed) { showToast('无法定位来源', 'error'); return; }
+  const paper = (window.EXAM_DATA.papers || []).find(p => p.year === parsed.year);
+  if (!paper) { showToast('找不到试卷', 'error'); return; }
+  state.paperId = paper.id;
+
+  let secId = 'reading-a';
+  let passageIdx = 0;
+  const tag = parsed.tag;
+  if (tag.startsWith('T')) {
+    secId = 'reading-a';
+    passageIdx = parseInt(tag.slice(1)) - 1;
+    if (isNaN(passageIdx) || passageIdx < 0) passageIdx = 0;
+  } else if (tag === '完型') secId = 'cloze';
+  else if (tag === '新题型') secId = 'reading-b';
+  else if (tag === '翻译') secId = 'translation';
+  else if (tag === '写作') secId = 'writing';
+
+  state.sectionId = secId;
+  state.passageIndex = passageIdx;
+  state.page = 'annotate';
+  render();
+
+  // 高亮那个生词
+  if (word) {
+    setTimeout(() => {
+      const marks = document.querySelectorAll('.vocab-mark');
+      for (const el of marks) {
+        if (el.textContent.trim() === word) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          el.classList.add('flash');
+          setTimeout(() => el.classList.remove('flash'), 1500);
+          break;
+        }
+      }
+    }, 100);
+  }
+}
+
+// 统一转义 + 高亮上下文（§§ 包裹的部分转为 <em>）
+function formatContext(ctx) {
+  return String(ctx || '').split('§§')
+    .map((s, i) => (i % 2 ? `<em>${esc(s)}</em>` : esc(s))).join('');
+}
+
+function renderSearch() {
+  const mode = state.searchMode || 'vocab';
+  const q = (state.searchQuery || '').trim();
+  const ql = q.toLowerCase();
+
+  let resultsHtml = '', statText = '';
+
+  if (mode === 'vocab') {
+    const vocab = window.ANNOTATIONS.vocab || [];
+    const results = ql
+      ? vocab.filter(v => {
+          const w = (vocabMark(v) + ' ' + vocabDisplay(v)).toLowerCase();
+          const m = String(v.meaning || '').toLowerCase();
+          return w.includes(ql) || m.includes(ql);
+        })
+      : vocab;
+    statText = `共 ${vocab.length} 个 · 匹配 ${results.length} 个`;
+    resultsHtml = results.length === 0
+      ? (q ? `<div class="empty">没有匹配 "${esc(q)}" 的生词</div>` : '<div class="empty">生词本还没有内容</div>')
+      : results.map(v => {
+          const cls = classifyVocab(vocabDisplay(v));
+          return `
+            <div class="search-result" data-action="jump-to-source" data-source="${esc(v.source || '')}" data-word="${esc(vocabMark(v))}">
+              <div class="sr-main">
+                <div class="sr-word ${cls}">${esc(vocabDisplay(v))}</div>
+                ${v.meaning ? `<div class="sr-meaning">${esc(v.meaning)}</div>` : ''}
+              </div>
+              <div class="sr-source">${esc(v.source || '')}</div>
+            </div>
+          `;
+        }).join('');
+  } else {
+    const results = ql ? searchArticles(ql) : [];
+    statText = `匹配 ${results.length} 处`;
+    resultsHtml = !q
+      ? '<div class="empty">输入关键词搜索文章内容</div>'
+      : (results.length === 0
+          ? `<div class="empty">没有匹配 "${esc(q)}" 的文章内容</div>`
+          : results.map((r, i) => `
+              <div class="search-result" data-action="jump-to-article"
+                   data-paper="${r.paper.id}" data-section="${r.section.id}"
+                   data-passage="${r.passageIndex}" data-keyword="${esc(r.match)}">
+                <div class="sr-main">
+                  <div class="sr-title">${esc(r.source)}</div>
+                  <div class="sr-context">${formatContext(r.context)}</div>
+                </div>
+              </div>
+            `).join(''));
+  }
+
+  return `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h1 style="font-size:20px;font-weight:700;margin:0;">搜索</h1>
+        <span class="search-stat">${statText}</span>
+      </div>
+      <div class="search-tabs">
+        <button class="search-tab ${mode === 'vocab' ? 'active' : ''}" data-action="search-mode" data-mode="vocab">生词</button>
+        <button class="search-tab ${mode === 'article' ? 'active' : ''}" data-action="search-mode" data-mode="article">文章</button>
+      </div>
+      <div class="search-header">
+        <input class="search-input" id="search-input"
+               placeholder="${mode === 'vocab' ? '输入单词或释义搜索…' : '输入文章关键词…'}"
+               value="${esc(q)}" autocomplete="off">
+      </div>
+      <div class="search-results">${resultsHtml}</div>
+    </div>
+  `;
+}
+
+/* ===== 文章搜索 ===== */
+function collectMatches(text, ql) {
+  const matches = [];
+  const lower = text.toLowerCase();
+  let from = 0;
+  while (true) {
+    const idx = lower.indexOf(ql, from);
+    if (idx === -1) break;
+    const start = Math.max(0, idx - 40);
+    const end = Math.min(text.length, idx + ql.length + 80);
+    const before = (start > 0 ? '…' : '') + text.slice(start, idx);
+    const hit = text.slice(idx, idx + ql.length);
+    const after = text.slice(idx + ql.length, end) + (end < text.length ? '…' : '');
+    matches.push({ context: before + '§§' + hit + '§§' + after, match: hit });
+    from = idx + ql.length;
+    if (matches.length >= 5) break;  // 每段最多 5 处
+  }
+  return matches;
+}
+
+function searchArticles(ql) {
+  const papers = window.EXAM_DATA.papers || [];
+  const results = [];
+  const MAX = 200;
+  papers.forEach(paper => {
+    (paper.sections || []).forEach(section => {
+      // section.content（完型、翻译、Part B）
+      if (section.content) {
+        collectMatches(section.content, ql).forEach(m => {
+          if (results.length >= MAX) return;
+          const tag = section.id === 'reading-a'
+            ? 'T' + (state.passageIndex + 1)
+            : section.name;
+          results.push({
+            paper, section, passageIndex: 0,
+            source: `${paper.year} ${section.name}`,
+            context: m.context, match: m.match
+          });
+        });
+      }
+      // passages
+      (section.passages || []).forEach((p, pi) => {
+        if (p.content) {
+          collectMatches(p.content, ql).forEach(m => {
+            if (results.length >= MAX) return;
+            results.push({
+              paper, section, passageIndex: pi,
+              source: `${paper.year} ${p.title || section.name}`,
+              context: m.context, match: m.match
+            });
+          });
+        }
+      });
+      // 题干
+      const allQ = [];
+      if (section.questions) allQ.push(...section.questions);
+      (section.passages || []).forEach(p => { if (p.questions) allQ.push(...p.questions); });
+      allQ.forEach(qItem => {
+        if (results.length >= MAX) return;
+        const stem = qItem.stem || '';
+        if (stem.toLowerCase().includes(ql)) {
+          let pi = 0;
+          if (section.passages) {
+            const foundP = section.passages.findIndex(p => (p.questions || []).some(x => x.id === qItem.id));
+            if (foundP >= 0) pi = foundP;
+          }
+          const before = stem.slice(0, stem.toLowerCase().indexOf(ql));
+          const hit = stem.slice(before.length, before.length + ql.length);
+          const after = stem.slice(before.length + ql.length);
+          results.push({
+            paper, section, passageIndex: pi,
+            source: `${paper.year} ${section.id === 'reading-a' ? 'T' + (pi + 1) : section.name} · ${qItem.id.replace('q', '')}题`,
+            context: before + '§§' + hit + '§§' + after,
+            match: hit
+          });
+        }
+      });
+    });
+  });
+  return results;
+}
+
+function jumpToArticleResult(paperId, sectionId, passageIndex, keyword) {
+  state.paperId = paperId;
+  state.sectionId = sectionId;
+  state.passageIndex = passageIndex;
+  state.searchHighlight = { text: keyword, paperId, sectionId, passageIndex };
+  state.page = 'annotate';
+  render();
+  setTimeout(() => {
+    const el = document.querySelector('.search-hit');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 150);
+}
+/* ===== Event Delegation ===== */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+  const qid = el.dataset.qid;
+
+  switch (action) {
+    case 'toggle-section-answer': {
+      const sid = el.dataset.section;
+      const paper = getCurrentPaper();
+      const section = getCurrentSection();
+      
+      // 如果是从“隐藏”切换到“显示”，则结算错题
+      if (!state.showSectionAnswer[sid]) {
+        const qs = getAllQuestionsInSection(section);
+        const records = window.ANNOTATIONS.questions || {};
+        let changed = false;
+
+        qs.forEach(q => {
+          const key = annKey(paper, q.id);
+          const ann = records[key];
+          // 如果用户做过这道题
+          if (ann && ann.userAnswer && q.answer) {
+            const correct = q.answer.trim().toUpperCase();
+            const isWrong = ann.userAnswer !== correct;
+            if (ann.wrong !== isWrong) {
+              ann.wrong = isWrong;
+              changed = true;
+            }
+          }
+        });
+
+        if (changed) scheduleSave();
+      }
+
+      state.showSectionAnswer[sid] = !state.showSectionAnswer[sid];
+      renderQuestions();
+      break;
+    } 
+    case 'show-vocab': {
+      removeFloatBar();
+      const word = el.dataset.word;
+      const qid = el.dataset.qid || '';
+      const rect = el.getBoundingClientRect();
+      showVocabPopover(word, rect.left, rect.bottom + 6, qid);
+      break;
+    }
+    case 'del-vocab-pop': {
+      e.stopPropagation();
+      const idx = parseInt(el.dataset.idx);
+      if (window.ANNOTATIONS.vocab[idx]) {
+        window.ANNOTATIONS.vocab.splice(idx, 1);
+        scheduleSave();
+        closeVocabPopover();
+        renderArticle();
+        renderQuestions(); // ← 新增：刷新右侧题目
+      }
+      break;
+    }
+    case 'jump-to-source':
+      jumpToSource(el.dataset.source, el.dataset.word);
+      break;    
+    case 'search-mode':
+      state.searchMode = el.dataset.mode;
+      state.searchQuery = '';
+      state.searchHighlight = null;
+      render();
+      break;
+    case 'jump-to-article':
+      jumpToArticleResult(el.dataset.paper, el.dataset.section, parseInt(el.dataset.passage), el.dataset.keyword);
+      break;      
+    case 'nav': go(el.dataset.page); break;
+    case 'go-back': go('dashboard'); break;
+    case 'pick-file': openStoreModal(); break;
+    case 'export-data': exportData(); break;
+    case 'import-data': document.getElementById('import-file-input').click(); break;
+    case 'open-paper': openPaper(el.dataset.paperId); break;
+    case 'switch-section': switchSection(el.dataset.sec, parseInt(el.dataset.idx)); break;
+    case 'pick-answer': pickAnswer(qid, el.dataset.opt); break;
+    case 'toggle-answer': toggleShowAnswer(qid); break;
+    case 'toggle-expand': toggleExpand(qid); break;
+    case 'toggle-tag-panel': toggleTagPanel(qid); break;
+    case 'toggle-opt-tag': toggleOptTagInput(qid, el.dataset.opt); break;
+    case 'rm-opt-tag': removeOptTag(qid, el.dataset.opt, el.dataset.tag); break;
+    case 'toggle-type': toggleType(qid, el.dataset.tag); break;
+    case 'toggle-method': toggleMethod(qid, el.dataset.tag); break;
+    case 'rm-my-tag': removeMyTag(qid, el.dataset.tag); break;
+    case 'del-loc': delLocation(qid, parseInt(el.dataset.idx)); break;
+    case 'jump-para': jumpToPara(parseInt(el.dataset.para)); break;
+    case 'jump-q': jumpToQuestion(el.dataset.qid); break;
+    case 'add-location': showLocationModal(); break;
+    case 'add-vocab': addVocab(); break;
+    case 'del-vocab': delVocab(parseInt(el.dataset.idx)); break;
+    case 'toggle-vocab': state.vocabShowAll = !state.vocabShowAll; render(); break;
+    case 'filter-type': {
+      const t = el.dataset.tag;
+      const i = state.filterTypes.indexOf(t);
+      if (i >= 0) state.filterTypes.splice(i, 1); else state.filterTypes.push(t);
+      render(); break;
+    }
+    case 'filter-method': {
+      const m = el.dataset.tag;
+      const i = state.filterMethods.indexOf(m);
+      if (i >= 0) state.filterMethods.splice(i, 1); else state.filterMethods.push(m);
+      render(); break;
+    }
+    case 'filter-mytag': {
+      const t = el.dataset.tag;
+      const i = state.filterMyTags.indexOf(t);
+      if (i >= 0) state.filterMyTags.splice(i, 1); else state.filterMyTags.push(t);
+      render(); break;
+    }
+    case 'filter-status': state.filterStatus = el.dataset.status; render(); break;
+    case 'filter-clear':
+      state.filterTypes = []; state.filterMethods = []; state.filterMyTags = [];
+      state.filterStatus = 'all'; render(); break;
+    case 'jump-to-paper':
+      jumpToPaper(el.dataset.paper, el.dataset.section, parseInt(el.dataset.passage));
+      break;
+    case 'toggle-hide-trans':
+      state.hideTranslation = !state.hideTranslation;
+      render(); // 重新渲染仪表盘以应用遮罩
+      showToast(state.hideTranslation ? '已开启遮挡模式，鼠标悬停查看' : '已显示所有翻译', 'success');
+      break;    
+  }
+});
+
+/* 输入框：实时保存草稿 + 回车提交 */
+document.addEventListener('input', e => {
+  const target = e.target;
+  if (target.matches('[data-opt-tag-input], [data-my-tag-input]')) {
+    const key = target.dataset.draftKey;
+    if (key) saveDraft(key, target.value);
+  }
+  if (target.id === 'search-input') {
+    state.searchQuery = target.value;
+    const mode = state.searchMode || 'vocab';
+    const q = target.value.trim().toLowerCase();
+    const card = target.closest('.card');
+    const container = card && card.querySelector('.search-results');
+    const stat = card && card.querySelector('.search-stat');
+    if (!container) return;
+
+    if (mode === 'vocab') {
+      const vocab = window.ANNOTATIONS.vocab || [];
+      const results = q ? vocab.filter(v => {
+        const w = (vocabMark(v) + ' ' + vocabDisplay(v)).toLowerCase();
+        const m = String(v.meaning || '').toLowerCase();
+        return w.includes(q) || m.includes(q);
+      }) : vocab;
+      container.innerHTML = results.length === 0
+        ? (q ? `<div class="empty">没有匹配 "${esc(target.value)}" 的生词</div>` : '<div class="empty">生词本还没有内容</div>')
+        : results.map(v => {
+            const cls = classifyVocab(vocabDisplay(v));
+            return `
+              <div class="search-result" data-action="jump-to-source" data-source="${esc(v.source || '')}" data-word="${esc(vocabMark(v))}">
+                <div class="sr-main">
+                  <div class="sr-word ${cls}">${esc(vocabDisplay(v))}</div>
+                  ${v.meaning ? `<div class="sr-meaning">${esc(v.meaning)}</div>` : ''}
+                </div>
+                <div class="sr-source">${esc(v.source || '')}</div>
+              </div>
+            `;
+          }).join('');
+      if (stat) stat.textContent = `共 ${vocab.length} 个 · 匹配 ${results.length} 个`;
+    } else {
+      const results = q ? searchArticles(q) : [];
+      container.innerHTML = !q
+        ? '<div class="empty">输入关键词搜索文章内容</div>'
+        : (results.length === 0
+            ? `<div class="empty">没有匹配 "${esc(target.value)}" 的文章内容</div>`
+            : results.map(r => `
+                <div class="search-result" data-action="jump-to-article"
+                     data-paper="${r.paper.id}" data-section="${r.section.id}"
+                     data-passage="${r.passageIndex}" data-keyword="${esc(r.match)}">
+                  <div class="sr-main">
+                    <div class="sr-title">${esc(r.source)}</div>
+                    <div class="sr-context">${formatContext(r.context)}</div>
+                  </div>
+                </div>
+              `).join(''));
+      if (stat) stat.textContent = `匹配 ${results.length} 处`;
+    }
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const target = e.target;
+  if (target.matches('[data-opt-tag-input]')) {
+    e.preventDefault();
+    const val = target.value.trim();
+    if (val) addOptTag(target.dataset.qid, target.dataset.opt, val);
+  } else if (target.matches('[data-my-tag-input]')) {
+    e.preventDefault();
+    const val = target.value.trim();
+    if (val) addMyTag(target.dataset.qid, val);
+  }
+});
+
+/* 生词本释义双击编辑 */
+/* 生词本双击编辑（支持单词/短语/句子 + 释义） */
+document.addEventListener('dblclick', e => {
+  const el = e.target.closest('[data-vocab-idx]');
+  if (!el) return;
+  if (el.tagName === 'INPUT') return; // 已经在编辑中
+  
+  const idx = parseInt(el.dataset.vocabIdx);
+  const field = el.dataset.editField || 'meaning';
+  const v = window.ANNOTATIONS.vocab[idx];
+  if (!v) return;
+  
+  const current = field === 'display' ? vocabDisplay(v) : (v.meaning || '');
+  const input = document.createElement('input');
+  input.value = current;
+  input.className = field === 'display' ? 'word-input' : 'meaning-input';
+  
+  const originalClass = el.className;
+  const originalTag = el.tagName;
+  
+  el.replaceWith(input);
+  input.focus();
+  input.select();
+
+  let finished = false;
+  const finish = save => {
+    if (finished) return;
+    finished = true;
+    
+    const newVal = input.value.trim();
+    if (save) {
+      if (field === 'display') {
+        v.display = newVal || vocabMark(v); // 如果清空则回退到原词
+      } else {
+        v.meaning = newVal;
+      }
+      scheduleSave();
+    }
+    
+    // 局部替换回普通文本（不触发全局 render，不会跳动）
+    const finalVal = save ? (newVal || current) : current;
+    const node = document.createElement(originalTag);
+    node.className = originalClass;
+    node.dataset.vocabIdx = idx;
+    node.dataset.editField = field;
+    node.textContent = finalVal;
+    input.replaceWith(node);
+    
+    // 如果修改了单词导致分类变化（例如从单词变成了短语），才重新渲染归类
+    if (save && field === 'display' && classifyVocab(current) !== classifyVocab(finalVal)) {
+      // 记录三列的滚动位置
+      const tops = [];
+      document.querySelectorAll('.vocab-col-content').forEach(c => tops.push(c.scrollTop));
+      render();
+      // 恢复滚动位置，防止页面跳动
+      document.querySelectorAll('.vocab-col-content').forEach((c, i) => {
+        if (tops[i] !== undefined) c.scrollTop = tops[i];
+      });
+    }
+  };
+
+  input.onkeydown = ev => {
+    if (ev.key === 'Enter') { ev.preventDefault(); finish(true); }
+    if (ev.key === 'Escape') { ev.preventDefault(); finish(false); }
+  };
+  input.onblur = () => finish(true);
+});
+
+document.getElementById('import-file-input').addEventListener('change', e => {
+  if (e.target.files[0]) importData(e.target.files[0]);
+  e.target.value = '';
+});
+
+/* ===== Init ===== */
+(async function init() {
+  render();
+
+  // 1) 已配置 GitHub → 拉取云端标注（手机 / 平板 / 多设备）
+  const stored = readStoredGhCfg();
+  if (stored && stored.owner && stored.repo && stored.token) {
+    await connectGitHub(stored, { remember: true, silent: true });
+    return;
+  }
+
+  // 2) 本地文件（桌面 Chrome / Edge）
+  try {
+    const h = await loadHandle();
+    if (h) {
+      const perm = await h.queryPermission({ mode: 'readwrite' });
+      if (perm === 'granted') {
+        await attachHandle(h, false);
+        return;
+      }
+      // 有句柄但权限未授予：存到 pendingHandle，等用户点按钮再请求
+      pendingHandle = h;
+      setSaveStatus('disconnected');
+      // 延迟一点，等 render 完成
+      setTimeout(() => {
+        const btn = document.getElementById('fs-status');
+        if (btn) {
+          btn.textContent = '点击恢复连接';
+          btn.style.background = '#fef3c7';
+          btn.style.borderColor = '#d97706';
+          btn.style.color = '#92400e';
+          btn.style.fontWeight = '700';
+          btn.style.animation = 'pulse 1.8s ease-in-out infinite';
+        }
+        // 弹一次 toast
+        showToast('上次的标注文件权限已过期，点击右上角按钮恢复连接', 'error');
+      }, 300);
+      return;
+    }
+  } catch (e) {}
+
+  // 3) 都没连上：恢复本机暂存的改动，避免刷新后看不见
+  try {
+    if (localStorage.getItem(LOCAL_CACHE_KEY + '-dirty') === '1') {
+      const cached = readLocalCache();
+      if (cached && applyAnnotationsObject(cached)) {
+        saveBackend = 'none';
+        setSaveStatus('local');
+        render();
+        setTimeout(() => showToast('已恢复本机暂存的改动，尚未写入数据文件', 'error'), 300);
+      }
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
