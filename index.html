@@ -681,6 +681,14 @@
   .float-bar .fb-loc:hover { background: #fde68a; }
   .float-bar .fb-vocab { background: #fce7f3; color: #9d174d; }
   .float-bar .fb-vocab:hover { background: #fbcfe8; }
+  /* 触屏设备：加大点按区域 */
+  @media (pointer: coarse) {
+    .float-bar { padding: 6px; gap: 6px; }
+    .float-bar button { width: 44px; height: 44px; border-radius: 9px; }
+    .float-bar button svg { width: 18px; height: 18px; }
+  }
+  /* 关掉 iOS 长按的文字预览/菜单气泡，交给应用自己的浮动条 */
+  .article-pane .para, .opt-text, .q-stem-text { -webkit-touch-callout: none; }
 
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
@@ -2593,6 +2601,32 @@ document.addEventListener('mouseup', e => {
   }, 250);
 });
 
+/* 任何方式产生的选区（含 iPad 拖拽选区手柄）都弹出工具条 */
+let selTimer = null;
+document.addEventListener('selectionchange', () => {
+  if (state.page !== 'annotate') return;
+  if (selTimer) clearTimeout(selTimer);
+  selTimer = setTimeout(() => {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    const text = sel.toString().trim();
+    if (!text || text.length < 2 || text.length > 400) return;
+    if (floatBar && state.selectedText === text) return;  // 同一条选区不重建
+    let rect = null;
+    try { rect = sel.getRangeAt(0).getBoundingClientRect(); } catch (err) {}
+    if (!rect || (!rect.width && !rect.height)) return;
+    showFloatBarAt(0, 0, rect);
+  }, 300);
+});
+
+/* 屏蔽长按弹出的系统菜单（拷贝/查词/共享），改用应用内工具条 */
+document.addEventListener('contextmenu', e => {
+  if (state.page !== 'annotate') return;
+  if (e.target.closest && e.target.closest('.para, .opt-text, .q-stem-text')) {
+    e.preventDefault();
+  }
+});
+
 function selectWordAt(clientX, clientY) {
   let range = null;
   if (document.caretRangeFromPoint) {
@@ -2630,7 +2664,7 @@ function selectWordAt(clientX, clientY) {
   sel.addRange(nr);
 }
 
-function showFloatBarAt(pageX, pageY) {
+function showFloatBarAt(pageX, pageY, rect) {
   const sel = window.getSelection();
   const text = sel.toString().trim();
   removeFloatBar();
@@ -2674,11 +2708,27 @@ function showFloatBarAt(pageX, pageY) {
   buttons += `<button class="fb-vocab" data-action="add-vocab" title="加入生词本">${ICONS.bookmark}</button>`;
   floatBar = document.createElement('div');
   floatBar.className = 'float-bar';
-  const x = Math.min(pageX + 8, window.innerWidth - 120);
-  floatBar.style.left = x + 'px';
-  floatBar.style.top = (pageY + 8) + 'px';
   floatBar.innerHTML = buttons;
   document.body.appendChild(floatBar);
+
+  const barW = floatBar.offsetWidth, barH = floatBar.offsetHeight;
+  let left, top;
+  if (rect && (rect.width || rect.height)) {
+    left = rect.left + window.scrollX;
+    top = rect.bottom + window.scrollY + 8;
+    // 选区下方放不下时翻到上方
+    if (rect.bottom + barH + 16 > window.innerHeight) {
+      top = rect.top + window.scrollY - barH - 8;
+    }
+  } else {
+    left = pageX + 8;
+    top = pageY + 8;
+  }
+  const minLeft = window.scrollX + 8;
+  const maxLeft = window.scrollX + window.innerWidth - barW - 8;
+  left = Math.max(minLeft, Math.min(left, maxLeft));
+  floatBar.style.left = left + 'px';
+  floatBar.style.top = top + 'px';
 }
 function getSelectionContext() {
   const sel = window.getSelection();
