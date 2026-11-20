@@ -7130,9 +7130,482 @@ window.ANNOTATIONS = {
       "options": {},
       "myTags": [],
       "note": ""
+    },
+    "2023-q1": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q2": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q3": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q4": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q5": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q6": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q7": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q8": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q9": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q10": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q11": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q12": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q13": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q14": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q15": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q16": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q17": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q18": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q19": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2023-q20": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
     }
   },
   "vocab": [
+    {
+      "mark": "aided",
+      "display": "aid in",
+      "meaning": "有助于",
+      "para": 0,
+      "context": null,
+      "target": "question",
+      "qid": "q15",
+      "optKey": "A",
+      "source": "2023 完型",
+      "date": "2026-11-20",
+      "category": ""
+    },
     {
       "mark": "holistic",
       "display": "holistic",
