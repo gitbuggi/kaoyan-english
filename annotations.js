@@ -7594,6 +7594,19 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "stock up on",
+      "display": "stock up on",
+      "meaning": "储备",
+      "para": 0,
+      "context": null,
+      "target": "question",
+      "qid": "q17",
+      "optKey": "D",
+      "source": "2023 完型",
+      "date": "2026-11-20",
+      "category": ""
+    },
+    {
       "mark": "aided",
       "display": "aid in",
       "meaning": "有助于",
