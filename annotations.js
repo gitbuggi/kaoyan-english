@@ -7705,9 +7705,140 @@ window.ANNOTATIONS = {
       },
       "myTags": [],
       "note": ""
+    },
+    "2012-q26": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q27": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q28": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q29": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q30": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
     }
   },
   "vocab": [
+    {
+      "mark": "abide",
+      "display": "abide",
+      "meaning": "v.容忍,遵守",
+      "para": 1,
+      "context": {
+        "left": "nding commitment to ",
+        "right": " by the state's stri"
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2012 T2",
+      "date": "2026-11-27",
+      "category": "必考词"
+    },
     {
       "mark": "mobilize",
       "display": "mobilize",
