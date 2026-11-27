@@ -7640,8 +7640,8 @@ window.ANNOTATIONS = {
     "2012-q23": {
       "types": [],
       "methods": [],
-      "wrong": false,
-      "userAnswer": "A",
+      "wrong": true,
+      "userAnswer": "D",
       "locations": [],
       "options": {
         "A": {
