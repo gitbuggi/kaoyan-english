@@ -7710,7 +7710,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "C",
       "locations": [],
       "options": {
         "A": {
@@ -7733,7 +7733,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "D",
       "locations": [],
       "options": {
         "A": {
@@ -7756,7 +7756,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "A",
       "locations": [],
       "options": {
         "A": {
@@ -7779,7 +7779,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "D",
       "locations": [],
       "options": {
         "A": {
@@ -7799,6 +7799,121 @@ window.ANNOTATIONS = {
       "note": ""
     },
     "2012-q30": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "A",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q31": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q32": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q33": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q34": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q35": {
       "types": [],
       "methods": [],
       "wrong": false,
