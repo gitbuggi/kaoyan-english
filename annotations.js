@@ -7709,6 +7709,19 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "profound",
+      "display": "profound",
+      "meaning": "adj.深刻的",
+      "para": 0,
+      "context": null,
+      "target": "question",
+      "qid": "q25",
+      "optKey": "C",
+      "source": "2012 T1",
+      "date": "2026-11-27",
+      "category": "必考词"
+    },
+    {
       "mark": "probe",
       "display": "probe",
       "meaning": "v.(into)探索,探查",
