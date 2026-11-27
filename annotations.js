@@ -7709,6 +7709,22 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "lameness",
+      "display": "lameness",
+      "meaning": "缺点",
+      "para": 3,
+      "context": {
+        "left": "Her critique of the ",
+        "right": " of many public-heal"
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2012 T1",
+      "date": "2026-11-27",
+      "category": ""
+    },
+    {
       "mark": "initiative",
       "display": "initiative",
       "meaning": "n.主动性,倡议",
