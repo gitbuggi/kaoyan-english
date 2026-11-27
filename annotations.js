@@ -8054,6 +8054,22 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "confrontation",
+      "display": "confront",
+      "meaning": "v.对峙,对抗",
+      "para": 3,
+      "context": {
+        "left": "the interaction and ",
+        "right": " between shared and "
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2012 T3",
+      "date": "2026-11-27",
+      "category": ""
+    },
+    {
       "mark": "Prior",
       "display": "Prior",
       "meaning": "adj.先前的",
