@@ -7709,6 +7709,19 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "emerges",
+      "display": "emerge",
+      "meaning": "v.出现,浮现",
+      "para": 0,
+      "context": null,
+      "target": "question",
+      "qid": "q21",
+      "optKey": null,
+      "source": "2012 T1",
+      "date": "2026-11-27",
+      "category": "必考词"
+    },
+    {
       "mark": "stock up on",
       "display": "stock up on",
       "meaning": "储备",
