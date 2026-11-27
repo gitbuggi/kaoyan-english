@@ -7709,6 +7709,22 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "initiative",
+      "display": "initiative",
+      "meaning": "n.主动性,倡议",
+      "para": 2,
+      "context": {
+        "left": ", an HIV-prevention ",
+        "right": " known as loveLife r"
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2012 T1",
+      "date": "2026-11-27",
+      "category": "必考词"
+    },
+    {
       "mark": "profound",
       "display": "profound",
       "meaning": "adj.深刻的",
