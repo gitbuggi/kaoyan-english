@@ -8054,6 +8054,22 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "Prior",
+      "display": "Prior",
+      "meaning": "adj.先前的",
+      "para": 1,
+      "context": {
+        "left": "e life experiences. ",
+        "right": " knowledge and inter"
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2012 T3",
+      "date": "2026-11-27",
+      "category": "必考词"
+    },
+    {
       "mark": "abound",
       "display": "abound",
       "meaning": "v.非常多",
