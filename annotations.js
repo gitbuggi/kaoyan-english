@@ -7709,6 +7709,19 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "probe",
+      "display": "probe",
+      "meaning": "v.(into)探索,探查",
+      "para": 0,
+      "context": null,
+      "target": "question",
+      "qid": "q23",
+      "optKey": "A",
+      "source": "2012 T1",
+      "date": "2026-11-27",
+      "category": "必考词"
+    },
+    {
       "mark": "emerges",
       "display": "emerge",
       "meaning": "v.出现,浮现",
