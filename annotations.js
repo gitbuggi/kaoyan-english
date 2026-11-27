@@ -7709,6 +7709,22 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "mobilize",
+      "display": "mobilize",
+      "meaning": "调动",
+      "para": 3,
+      "context": {
+        "left": "ot-on: they fail to ",
+        "right": " peer pressure for h"
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2012 T1",
+      "date": "2026-11-27",
+      "category": ""
+    },
+    {
       "mark": "lameness",
       "display": "lameness",
       "meaning": "缺点",
