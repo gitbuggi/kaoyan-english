@@ -7590,6 +7590,121 @@ window.ANNOTATIONS = {
       },
       "myTags": [],
       "note": ""
+    },
+    "2012-q21": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "D",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q22": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q23": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q24": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
+    },
+    "2012-q25": {
+      "types": [],
+      "methods": [],
+      "wrong": false,
+      "userAnswer": "",
+      "locations": [],
+      "options": {
+        "A": {
+          "tags": []
+        },
+        "B": {
+          "tags": []
+        },
+        "C": {
+          "tags": []
+        },
+        "D": {
+          "tags": []
+        }
+      },
+      "myTags": [],
+      "note": ""
     }
   },
   "vocab": [
