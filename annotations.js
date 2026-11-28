@@ -8054,8 +8054,8 @@ window.ANNOTATIONS = {
     "2013-q21": {
       "types": [],
       "methods": [],
-      "wrong": true,
-      "userAnswer": "B",
+      "wrong": false,
+      "userAnswer": "A",
       "locations": [],
       "options": {
         "A": {
@@ -8077,8 +8077,8 @@ window.ANNOTATIONS = {
     "2013-q22": {
       "types": [],
       "methods": [],
-      "wrong": true,
-      "userAnswer": "D",
+      "wrong": false,
+      "userAnswer": "B",
       "locations": [],
       "options": {
         "A": {
@@ -8100,8 +8100,8 @@ window.ANNOTATIONS = {
     "2013-q23": {
       "types": [],
       "methods": [],
-      "wrong": true,
-      "userAnswer": "B",
+      "wrong": false,
+      "userAnswer": "D",
       "locations": [],
       "options": {
         "A": {
