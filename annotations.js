@@ -8100,8 +8100,8 @@ window.ANNOTATIONS = {
     "2013-q23": {
       "types": [],
       "methods": [],
-      "wrong": false,
-      "userAnswer": "D",
+      "wrong": true,
+      "userAnswer": "C",
       "locations": [],
       "options": {
         "A": {
@@ -8123,8 +8123,8 @@ window.ANNOTATIONS = {
     "2013-q24": {
       "types": [],
       "methods": [],
-      "wrong": true,
-      "userAnswer": "D",
+      "wrong": false,
+      "userAnswer": "C",
       "locations": [],
       "options": {
         "A": {
