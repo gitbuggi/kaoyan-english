@@ -8284,6 +8284,19 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "withhold",
+      "display": "withhold",
+      "meaning": "v.拒绝,保密",
+      "para": 0,
+      "context": null,
+      "target": "question",
+      "qid": "q37",
+      "optKey": "B",
+      "source": "2013 T4",
+      "date": "2026-11-28",
+      "category": "基础词"
+    },
+    {
       "mark": "strain",
       "display": "strain",
       "meaning": "v.使紧张,尽力使用;拉紧,绷紧;使损伤,过度,",
