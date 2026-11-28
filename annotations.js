@@ -8169,6 +8169,22 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "strain",
+      "display": "strain",
+      "meaning": "v.使紧张,尽力使用;拉紧,绷紧;使损伤,过度,",
+      "para": 3,
+      "context": {
+        "left": "der in volumes that ",
+        "right": " natural resources, "
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2013 T1",
+      "date": "2026-11-28",
+      "category": "必考词"
+    },
+    {
       "mark": "feverish",
       "display": "feverish",
       "meaning": "adj. 激动的,焦虑不安的",
