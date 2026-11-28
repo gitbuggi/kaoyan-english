@@ -4297,8 +4297,8 @@ window.ANNOTATIONS = {
     "2013-q27": {
       "types": [],
       "methods": [],
-      "wrong": false,
-      "userAnswer": "",
+      "wrong": true,
+      "userAnswer": "D",
       "locations": [],
       "options": {
         "A": {
@@ -4321,7 +4321,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "C",
       "locations": [],
       "options": {
         "A": {
@@ -4344,7 +4344,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "B",
       "locations": [],
       "options": {
         "A": {
@@ -4367,7 +4367,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "D",
       "locations": [],
       "options": {
         "A": {
