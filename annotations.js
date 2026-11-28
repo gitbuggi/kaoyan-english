@@ -8169,6 +8169,22 @@ window.ANNOTATIONS = {
   },
   "vocab": [
     {
+      "mark": "feverish",
+      "display": "feverish",
+      "meaning": "adj. 激动的,焦虑不安的",
+      "para": 2,
+      "context": {
+        "left": "or at odds with the ",
+        "right": " world described in "
+      },
+      "target": "article",
+      "qid": null,
+      "optKey": null,
+      "source": "2013 T1",
+      "date": "2026-11-28",
+      "category": "超纲词"
+    },
+    {
       "mark": "confrontation",
       "display": "confront",
       "meaning": "v.对峙,对抗",
