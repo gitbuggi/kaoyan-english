@@ -4021,8 +4021,8 @@ window.ANNOTATIONS = {
     "2013-q40": {
       "types": [],
       "methods": [],
-      "wrong": false,
-      "userAnswer": "",
+      "wrong": true,
+      "userAnswer": "A",
       "locations": [],
       "options": {
         "A": {
