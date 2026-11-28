@@ -8239,7 +8239,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "B",
       "locations": [],
       "options": {
         "A": {
