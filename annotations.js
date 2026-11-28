@@ -8124,7 +8124,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "D",
       "locations": [],
       "options": {
         "A": {
@@ -8147,7 +8147,7 @@ window.ANNOTATIONS = {
       "types": [],
       "methods": [],
       "wrong": false,
-      "userAnswer": "",
+      "userAnswer": "C",
       "locations": [],
       "options": {
         "A": {
